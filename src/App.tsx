@@ -8,6 +8,7 @@ import DashboardPage from "./pages/Dashboard/DashboardPage";
 import ProductsList from "./pages/Products/ProductsList";
 import OrdersList from "./pages/Orders/OrdersList";
 import UsersList from "./pages/Users/UsersList";
+import UserDetails from "./pages/Users/UserDetails";
 import CategoriesList from "./pages/Categories/CategoriesList";
 import InventoryList from "./pages/Inventory/InventoryList";
 import GeneralSettings from "./pages/Settings/GeneralSettings";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path={ROUTES.PRODUCTS} element={<ProductsList />} />
             <Route path={ROUTES.ORDERS} element={<OrdersList />} />
             <Route path={ROUTES.USERS} element={<UsersList />} />
+            <Route path={ROUTES.USER_DETAILS} element={<UserDetails />} />
             <Route path={ROUTES.CATEGORIES} element={<CategoriesList />} />
             <Route path={ROUTES.INVENTORY} element={<InventoryList />} />
             <Route path={ROUTES.SETTINGS} element={<GeneralSettings />} />
