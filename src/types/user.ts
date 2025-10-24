@@ -1,23 +1,6 @@
-export type UserRole = 'admin' | 'manager' | 'customer';
-
-export interface User {
+export interface AdminUser {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
+  name?: string;
   avatar?: string;
-  phone?: string;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface UserFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  phone?: string;
-  password?: string;
 }

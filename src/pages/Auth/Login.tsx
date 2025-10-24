@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ROUTES } from '@/config/routes.config';
 import { useToast } from '@/hooks/use-toast';
+import { loginApi } from '@/lib/functions/auth';
+import { useAuthStore } from '@/store/authStore';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,21 +16,25 @@ const Login = () => {
     email: '',
     password: '',
   });
+  const {login} = useAuthStore()
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Mock login
-    toast({
-      title: 'Success',
-      description: 'Logged in successfully',
-    });
-    
-    navigate(ROUTES.DASHBOARD);
+    const { email, password} = formData;
+    const response = await loginApi(email, password)
+    if (response.success) {
+      login()
+      toast({
+        title: 'Success',
+        description: 'Logged in successfully',
+      });
+      navigate(ROUTES.DASHBOARD);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 w-full">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
