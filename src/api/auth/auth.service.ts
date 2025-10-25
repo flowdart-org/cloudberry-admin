@@ -4,11 +4,11 @@ import { ApiResponse } from "@/types/common";
 import { LoginDTO } from "./auth.dto";
 
 
-const BASE_URL = '/auth/admin';
+const BASE_URL = '/auth';
 
 export const AUTH_SERVICES = {
   login: async (payload: LoginDTO): Promise<ApiResponse<void>> => {
-    return await request<void>("post", `${BASE_URL}/${AUTH.LOGIN}`, payload);
+    return await request<void>("post", `${BASE_URL}/admin/${AUTH.LOGIN}`, payload);
   },
 
   logout: async (): Promise<ApiResponse<void>> => {

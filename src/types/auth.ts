@@ -9,6 +9,7 @@ export interface AuthState {
     login: () => void;
     logout: () => void;
     setUser: (user: Partial<AdminUser>) => void;
-    fetchUser: () => Promise<void>
+    refreshToken: () => Promise<boolean>;
+    fetchUser: () => Promise<void>;
 }
 

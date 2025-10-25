@@ -1,5 +1,5 @@
-import { AUTH_SERVICES } from "@/api/auth/auth.service";
-import { USER_SERVICES } from "@/api/user/user.service";
+import { logoutApi, refreshTokenApi } from "@/lib/functions/auth";
+import { meApi } from "@/lib/functions/user";
 import { AuthState } from "@/types/auth";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -19,8 +19,8 @@ export const useAuthStore = create<AuthState>()(
 
             fetchUser: async () => {
                 if (get().isAuthenticated) {
-                    const { success, data: user } = await USER_SERVICES.me()
-                    if (success) {
+                    const { success, data: user } = await meApi()
+                    if (success && user) {
                         set({ user, isAuthenticated: true })
                     }
                 } else {
@@ -29,13 +29,27 @@ export const useAuthStore = create<AuthState>()(
                 set({ isLoading: false })
             },
 
+            refreshToken: async () => {
+                set({ isLoading: true })
+                const { success } = await refreshTokenApi()
+                console.log(success, 'its succes hsoing')
+                if (!success) {
+                    console.log(success, 'its succes hsoing okkk')
+                    get().logout()
+                    set({ isLoading: false })
+                    return false
+                }
+                set({ isLoading: false })
+                return true
+            },
+
             logout: async () => {
                 set({ isLoading: true })
-                const { success } = await AUTH_SERVICES.logout()
+                const { success } = await logoutApi()
                 if (success) {
                     set({ user: null, isAuthenticated: false })
                 }
-                set({isLoading: false})
+                set({ isLoading: false })
             },
 
             setUser: (userUpdate) =>

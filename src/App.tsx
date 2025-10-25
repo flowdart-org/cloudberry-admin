@@ -27,16 +27,16 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-    <Routes>
-      <Route element={<PublicRoute />}>
-        <Route element={<PublicLayout />}>
-          <Route path="/login" element={<Login />} />
-        </Route>
-      </Route>
+        <Routes>
+          <Route element={<PublicRoute />}>
+            <Route element={<PublicLayout />}>
+              <Route path={ROUTES.LOGIN} element={<Login />} />
+            </Route>
+          </Route>
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<ProtectedLayout />}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedLayout />}>
+              <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
               <Route path={ROUTES.PRODUCTS} element={<ProductsList />} />
               <Route path={ROUTES.ORDERS} element={<OrdersList />} />
               <Route path={ROUTES.USERS} element={<UsersList />} />

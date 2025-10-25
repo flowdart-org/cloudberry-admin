@@ -10,14 +10,12 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/config/routes.config';
+import { logoutApi } from '@/lib/functions/auth';
+import { useAuthStore } from '@/store/authStore';
 
 export const UserMenu = () => {
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    // TODO: Implement logout logic
-    navigate(ROUTES.LOGIN);
-  };
+  const {logout} = useAuthStore()
 
   return (
     <DropdownMenu>
@@ -51,7 +49,7 @@ export const UserMenu = () => {
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           className="cursor-pointer text-destructive"
-          onClick={handleLogout}
+          onClick={logout}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
