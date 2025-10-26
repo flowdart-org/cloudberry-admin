@@ -1,6 +1,6 @@
 import { logoutApi, refreshTokenApi } from "@/lib/functions/auth";
 import { meApi } from "@/lib/functions/user";
-import { AuthState } from "@/types/auth";
+import { AuthState } from "@/types/auth.types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 

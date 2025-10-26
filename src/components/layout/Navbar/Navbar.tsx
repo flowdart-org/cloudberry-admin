@@ -3,12 +3,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from './UserMenu';
 import { cn } from '@/lib/utils';
+import { ComingSoonDialog } from '@/components/common/ComingSoonDialog';
+import { useState } from 'react';
 
 interface NavbarProps {
   isCollapsed: boolean;
 }
 
 export const Navbar = ({ isCollapsed }: NavbarProps) => {
+  const [showComingSoon, setShowComingSoon] = useState(false);
   return (
     <header
       className={cn(
@@ -28,14 +31,21 @@ export const Navbar = ({ isCollapsed }: NavbarProps) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="relative">
+       <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="relative"
+            onClick={() => setShowComingSoon(true)}
+          >
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
           </Button>
           <UserMenu />
         </div>
       </div>
+
+      <ComingSoonDialog open={showComingSoon} onOpenChange={setShowComingSoon} />
     </header>
   );
 };

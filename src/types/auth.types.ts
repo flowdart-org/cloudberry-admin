@@ -1,4 +1,4 @@
-import { AdminUser } from "./user";
+import { AdminUser } from "./user.types";
 
 export interface LoginDTO { email: string; password: string }
 

@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Pagination } from '@/components/common/Pagination';
-import { User } from '@/types/user';
+import { User } from '@/types/user.types';
 import { formatDate } from '@/utils/formatDate';
 import { formatCurrency } from '@/utils/currency';
 import { ROUTES } from '@/config/routes.config';

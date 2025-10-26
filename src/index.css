@@ -156,3 +156,7 @@ All colors MUST be HSL.
     transition: var(--transition-smooth);
   }
 }
+
+::-webkit-scrollbar {
+  display: none;
+}

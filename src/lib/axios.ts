@@ -63,7 +63,7 @@ api.interceptors.response.use(
 
 
 export async function request<T>(
-  method: "get" | "post" | "put" | "delete",
+  method: "get" | "post" | "put" | "patch" | "delete",
   url: string,
   data?: any,
   config?: AxiosRequestConfig

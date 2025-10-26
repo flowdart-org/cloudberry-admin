@@ -8,7 +8,6 @@ import ProductsList from "./pages/Products/ProductsList";
 import OrdersList from "./pages/Orders/OrdersList";
 import UsersList from "./pages/Users/UsersList";
 import UserDetails from "./pages/Users/UserDetails";
-import CategoriesList from "./pages/Categories/CategoriesList";
 import InventoryList from "./pages/Inventory/InventoryList";
 import GeneralSettings from "./pages/Settings/GeneralSettings";
 import Login from "./pages/Auth/Login";
@@ -18,6 +17,7 @@ import ProtectedLayout from "./components/layout/ProtectedLayout";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import PublicLayout from "./components/layout/PublicLayout";
 import PublicRoute from "./components/routes/PublicRoute";
+import { CategoriesList } from "./pages/Categories/CategoriesList";
 
 const queryClient = new QueryClient();
 

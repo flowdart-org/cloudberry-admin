@@ -1,7 +1,7 @@
 
 import { request } from "@/lib/axios";
 import { USER } from "./user.constants";
-import { AdminUser } from "@/types/user";
+import { AdminUser } from "@/types/user.types";
 import { ApiResponse } from "@/types/common";
 
 const BASE_URL = '/admin';

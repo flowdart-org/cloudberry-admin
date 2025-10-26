@@ -1,7 +1,7 @@
 import { USER_SERVICES } from "@/api/user/user.service";
 import { ErrorResponse } from "@/api/utils";
 import { ApiResponse } from "@/types/common";
-import { AdminUser } from "@/types/user";
+import { AdminUser } from "@/types/user.types";
 
 export const meApi = async (): Promise<ApiResponse<AdminUser | void>> => {
   try {
