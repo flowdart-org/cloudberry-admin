@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
-import { Product } from '@/types/product';
+import { Product } from '@/types/product.types';
 import { formatCurrency } from '@/utils/currency';
 import { cn } from '@/lib/utils';
 
@@ -41,28 +41,34 @@ export const ProductTable = ({ products, onDelete }: ProductTableProps) => {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-lg bg-secondary overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover"
-                    />
+                    {product.images && product.images.length > 0 ? (
+                      <img
+                        src={product.images[0]}
+                        alt={product.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-xl">
+                        📦
+                      </div>
+                    )}
                   </div>
                   <div>
                     <p className="font-medium">{product.name}</p>
-                    <p className="text-sm text-muted-foreground">{product.sku}</p>
+                    <p className="text-sm text-muted-foreground">{product.description.substring(0, 30)}...</p>
                   </div>
                 </div>
               </TableCell>
-              <TableCell>{product.category}</TableCell>
-              <TableCell>{formatCurrency(product.price)}</TableCell>
+              <TableCell>Category #{product.categoryId}</TableCell>
+              <TableCell>{formatCurrency(product.discountPrice)}</TableCell>
               <TableCell>
                 <span
                   className={cn(
                     'font-medium',
-                    product.stock < 10 ? 'text-destructive' : 'text-foreground'
+                    product.variants.reduce((sum, v) => sum + v.stock, 0) < 10 ? 'text-destructive' : 'text-foreground'
                   )}
                 >
-                  {product.stock}
+                  {product.variants.reduce((sum, v) => sum + v.stock, 0)}
                 </span>
               </TableCell>
               <TableCell>

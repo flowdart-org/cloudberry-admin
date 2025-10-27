@@ -1,20 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Plus, Search, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Crop } from "lucide-react";
 import { toast } from "sonner";
-import { Product, VariantDto } from "@/types/product.types";
+import { Product, VariantDto, ProductImage } from "@/types/product.types";
+import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 import { PRODUCT_SERVICES } from "@/api/product/mock.product.service";
 import { CreateProductDTO, updateProductDTO } from "@/api/product/product.dto";
+import { ProductFormFields } from "@/components/products/ProductFormFields";
 
-export default function ProductsList() {
+export default function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +31,8 @@ export default function ProductsList() {
     tryOn: boolean;
     tags: string[];
     variants: VariantDto[];
+    images: ProductImage[];
+    thumbnail: string;
   }>({
     name: "",
     description: "",
@@ -42,9 +43,22 @@ export default function ProductsList() {
     tryOn: false,
     tags: [],
     variants: [],
+    images: [],
+    thumbnail: "",
   });
   const [newTag, setNewTag] = useState("");
   const [newVariant, setNewVariant] = useState<VariantDto>({ size: "", stock: 0 });
+  const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState<CropType>({
+    unit: '%',
+    width: 75,
+    height: 100,
+    x: 12.5,
+    y: 0,
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -87,6 +101,16 @@ export default function ProductsList() {
       return;
     }
 
+    if (formData.images.length === 0) {
+      toast.error("Please add at least one image");
+      return;
+    }
+
+    if (!formData.thumbnail) {
+      toast.error("Please set a thumbnail image");
+      return;
+    }
+
     try {
       const productData: CreateProductDTO = {
         name: formData.name,
@@ -97,6 +121,8 @@ export default function ProductsList() {
         status: formData.status,
         tryOn: formData.tryOn,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
+        images: formData.images,
+        thumbnail: formData.thumbnail,
       };
 
       const response = await PRODUCT_SERVICES.addProduct(productData);
@@ -128,6 +154,16 @@ export default function ProductsList() {
       return;
     }
 
+    if (formData.images.length === 0) {
+      toast.error("Please add at least one image");
+      return;
+    }
+
+    if (!formData.thumbnail) {
+      toast.error("Please set a thumbnail image");
+      return;
+    }
+
     try {
       const updateData: updateProductDTO = {
         name: formData.name,
@@ -139,6 +175,8 @@ export default function ProductsList() {
         tryOn: formData.tryOn,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         variants: formData.variants,
+        images: formData.images,
+        thumbnail: formData.thumbnail,
       };
 
       await PRODUCT_SERVICES.updateProducts(currentProduct.id!, updateData);
@@ -179,6 +217,8 @@ export default function ProductsList() {
       tryOn: product.tryOn,
       tags: product.tags || [],
       variants: product.variants || [],
+      images: product.images || [],
+      thumbnail: product.thumbnail || "",
     });
     setIsEditDialogOpen(true);
   };
@@ -194,6 +234,8 @@ export default function ProductsList() {
       tryOn: false,
       tags: [],
       variants: [],
+      images: [],
+      thumbnail: "",
     });
     setNewTag("");
     setNewVariant({ size: "", stock: 0 });
@@ -221,163 +263,147 @@ export default function ProductsList() {
     setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
   };
 
-  const ProductFormFields = () => (
-    <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="name">Product Name *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Enter product name"
-        />
-      </div>
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-      <div className="grid gap-2">
-        <Label htmlFor="description">Description *</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Enter product description"
-          rows={3}
-        />
-      </div>
+    const file = files[0];
+    const reader = new FileReader();
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="actualPrice">Actual Price *</Label>
-          <Input
-            id="actualPrice"
-            type="number"
-            step="0.01"
-            value={formData.actualPrice}
-            onChange={(e) => setFormData({ ...formData, actualPrice: e.target.value })}
-            placeholder="0.00"
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="discountPercent">Discount %</Label>
-          <Input
-            id="discountPercent"
-            type="number"
-            step="0.01"
-            value={formData.discountPercent}
-            onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
-            placeholder="0"
-          />
-        </div>
-      </div>
+    reader.onload = (event) => {
+      setImageToCrop(event.target?.result as string);
+      setIsCropDialogOpen(true);
+    };
 
-      {formData.actualPrice && formData.discountPercent && (
-        <div className="rounded-md bg-muted p-3">
-          <p className="text-sm text-muted-foreground">
-            Discount Price: ${calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent)).toFixed(2)}
-          </p>
-        </div>
-      )}
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
 
-      <div className="grid gap-2">
-        <Label htmlFor="categoryId">Category ID *</Label>
-        <Input
-          id="categoryId"
-          type="number"
-          value={formData.categoryId}
-          onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-          placeholder="Enter category ID"
-        />
-      </div>
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { width, height } = e.currentTarget;
+    const aspectRatio = 3 / 4;
+    
+    // Calculate initial crop to maintain 3:4 aspect ratio
+    const cropWidth = 75;
+    const cropHeight = cropWidth / aspectRatio * (width / height);
+    
+    setCrop({
+      unit: '%',
+      width: cropWidth,
+      height: cropHeight,
+      x: (100 - cropWidth) / 2,
+      y: (100 - cropHeight) / 2,
+    });
+  };
 
-      <div className="grid gap-2">
-        <Label htmlFor="status">Status</Label>
-        <Select value={formData.status} onValueChange={(value: "active" | "inactive") => setFormData({ ...formData, status: value })}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+  const getCroppedImg = async (): Promise<string> => {
+    if (!completedCrop || !imgRef.current) {
+      return imageToCrop || "";
+    }
 
-      <div className="flex items-center justify-between rounded-md border border-border p-3">
-        <Label htmlFor="tryOn" className="cursor-pointer">Virtual Try-On</Label>
-        <Switch
-          id="tryOn"
-          checked={formData.tryOn}
-          onCheckedChange={(checked) => setFormData({ ...formData, tryOn: checked })}
-        />
-      </div>
+    const image = imgRef.current;
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
 
-      <div className="grid gap-2">
-        <Label>Tags</Label>
-        <div className="flex gap-2">
-          <Input
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-            placeholder="Add a tag"
-          />
-          <Button type="button" onClick={addTag} variant="outline">
-            Add
-          </Button>
-        </div>
-        {formData.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {formData.tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="gap-1">
-                {tag}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
+    canvas.width = completedCrop.width;
+    canvas.height = completedCrop.height;
+    const ctx = canvas.getContext('2d');
 
-      <div className="grid gap-2">
-        <Label>Variants *</Label>
-        <div className="flex gap-2">
-          <Input
-            value={newVariant.size}
-            onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-            placeholder="Size (e.g., S, M, L)"
-            className="flex-1"
-          />
-          <Input
-            type="number"
-            value={newVariant.stock}
-            onChange={(e) => setNewVariant({ ...newVariant, stock: parseInt(e.target.value) || 0 })}
-            placeholder="Stock"
-            className="w-24"
-          />
-          <Button type="button" onClick={addVariant} variant="outline">
-            Add
-          </Button>
-        </div>
-        {formData.variants.length > 0 && (
-          <div className="mt-2 space-y-2">
-            {formData.variants.map((variant, index) => (
-              <div key={index} className="flex items-center justify-between rounded-md border border-border p-2">
-                <span className="text-sm">
-                  Size: <strong>{variant.size}</strong> - Stock: <strong>{variant.stock}</strong>
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeVariant(index)}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    ctx.drawImage(
+      image,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0,
+      0,
+      completedCrop.width,
+      completedCrop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          resolve(imageToCrop || "");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleCropComplete = async () => {
+    try {
+      const croppedImageUrl = await getCroppedImg();
+      
+      const newImage: ProductImage = {
+        id: Math.random().toString(36).substr(2, 9),
+        url: croppedImageUrl,
+        isThumbnail: formData.images.length === 0,
+      };
+
+      setFormData((prev) => {
+        const updatedImages = [...prev.images, newImage];
+        return {
+          ...prev,
+          images: updatedImages,
+          thumbnail: prev.thumbnail || newImage.url,
+        };
+      });
+
+      setIsCropDialogOpen(false);
+      setImageToCrop(null);
+      setCrop({
+        unit: '%',
+        width: 75,
+        height: 100,
+        x: 12.5,
+        y: 0,
+      });
+      setCompletedCrop(null);
+      toast.success("Image added successfully");
+    } catch (error) {
+      toast.error("Failed to crop image");
+      console.error("Error cropping image:", error);
+    }
+  };
+
+  const removeImage = (imageId: string) => {
+    setFormData((prev) => {
+      const updatedImages = prev.images.filter((img) => img.id !== imageId);
+      const removedImage = prev.images.find((img) => img.id === imageId);
+      
+      let newThumbnail = prev.thumbnail;
+      if (removedImage?.url === prev.thumbnail && updatedImages.length > 0) {
+        newThumbnail = updatedImages[0].url;
+      } else if (updatedImages.length === 0) {
+        newThumbnail = "";
+      }
+
+      return {
+        ...prev,
+        images: updatedImages,
+        thumbnail: newThumbnail,
+      };
+    });
+  };
+
+  const setThumbnail = (imageUrl: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail: imageUrl,
+    }));
+  };
+
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -439,9 +465,14 @@ export default function ProductsList() {
                     <tr key={product.id} className="transition-colors hover:bg-muted/30">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-2xl">
+                          {product.thumbnail ?
+                          <img
+                      src={product.thumbnail}
+                      alt="Product"
+                      className="object-cover w-10 h-full"
+                    /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-2xl">
                             📦
-                          </div>
+                          </div>}
                           <div>
                             <div className="font-medium text-foreground">{product.name}</div>
                             <div className="text-sm text-muted-foreground line-clamp-1">{product.description}</div>
@@ -507,7 +538,18 @@ export default function ProductsList() {
             <DialogTitle>Add Product</DialogTitle>
             <DialogDescription>Add a new product to your inventory</DialogDescription>
           </DialogHeader>
-          <ProductFormFields />
+          <ProductFormFields
+            formData={formData}
+            setFormData={setFormData}
+            newTag={newTag}
+            setNewTag={setNewTag}
+            newVariant={newVariant}
+            setNewVariant={setNewVariant}
+            onImageUpload={handleImageUpload}
+            onRemoveImage={removeImage}
+            onSetThumbnail={setThumbnail}
+            calculateDiscountPrice={calculateDiscountPrice}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel
@@ -524,7 +566,18 @@ export default function ProductsList() {
             <DialogTitle>Edit Product</DialogTitle>
             <DialogDescription>Update product information</DialogDescription>
           </DialogHeader>
-          <ProductFormFields />
+          <ProductFormFields
+            formData={formData}
+            setFormData={setFormData}
+            newTag={newTag}
+            setNewTag={setNewTag}
+            newVariant={newVariant}
+            setNewVariant={setNewVariant}
+            onImageUpload={handleImageUpload}
+            onRemoveImage={removeImage}
+            onSetThumbnail={setThumbnail}
+            calculateDiscountPrice={calculateDiscountPrice}
+          />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
@@ -551,6 +604,48 @@ export default function ProductsList() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Crop Dialog */}
+      <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Crop Image to 3:4 Ratio</DialogTitle>
+            <DialogDescription>
+              Adjust the crop area to select the portion of the image you want to use
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {imageToCrop && (
+              <div className="flex justify-center">
+                <ReactCrop
+                  crop={crop}
+                  onChange={(c) => setCrop(c)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={3 / 4}
+                  className="max-h-[500px]"
+                >
+                  <img
+                    ref={imgRef}
+                    src={imageToCrop}
+                    alt="Crop preview"
+                    onLoad={onImageLoad}
+                    className="max-h-[500px]"
+                  />
+                </ReactCrop>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCropDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCropComplete}>
+              <Crop className="mr-2 h-4 w-4" />
+              Crop & Add Image
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
