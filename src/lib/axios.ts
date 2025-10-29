@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import { ENV } from "./env";
 import { ApiResponse } from "@/types/common";
 import { useAuthStore } from "@/store/authStore";
+import { AuthApi, CategoryApi, Configuration, ProductApi, UserApi } from "@/api";
 
 export const api = axios.create({
   baseURL: ENV.API_BASE_URL,
@@ -84,3 +85,22 @@ export async function request<T>(
     };
   }
 }
+
+
+
+const basePath = ENV.API_BASE_URL;
+
+export const config = new Configuration({
+  basePath,
+  baseOptions: {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  },
+});
+
+export const authApi = new AuthApi(config)
+export const userApi = new UserApi(config)
+export const categoryApi = new CategoryApi(config)
+export const productApi = new ProductApi(config)
