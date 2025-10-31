@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/tailwind";
 import { ROUTES } from "@/config/routes.config";
 import { Button } from "@/components/ui/button";
 import { ComingSoonDialog } from "@/components/common/ComingSoonDialog";

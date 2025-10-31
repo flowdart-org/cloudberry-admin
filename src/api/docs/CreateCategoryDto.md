@@ -1,19 +1,19 @@
-# LoginResendOTPDto
+# CreateCategoryDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**phone** | **string** | Phone number of the user | [default to undefined]
+**name** | **string** | The name of the category | [default to undefined]
 
 ## Example
 
 ```typescript
-import { LoginResendOTPDto } from './api';
+import { CreateCategoryDto } from './api';
 
-const instance: LoginResendOTPDto = {
-    phone,
+const instance: CreateCategoryDto = {
+    name,
 };
 ```
 

@@ -1,5 +1,5 @@
 import { USER_SERVICES } from "@/api/user/user.service";
-import { ErrorResponse } from "@/api/utils";
+import { ErrorResponse } from "@/utils/error-response";
 import { ApiResponse } from "@/types/common";
 import { AdminUser } from "@/types/user.types";
 

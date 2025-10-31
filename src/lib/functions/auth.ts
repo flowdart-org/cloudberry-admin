@@ -1,5 +1,5 @@
 import { AUTH_SERVICES } from "@/api/auth/auth.service";
-import { ErrorResponse } from "@/api/utils";
+import { ErrorResponse } from "@/utils/error-response";
 import { ApiResponse } from "@/types/common";
 
 export const loginApi = async (email: string, password: string): Promise<ApiResponse<void>> => {

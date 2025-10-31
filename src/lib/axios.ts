@@ -2,18 +2,35 @@ import axios, { AxiosRequestConfig } from "axios";
 import { ENV } from "./env";
 import { ApiResponse } from "@/types/common";
 import { useAuthStore } from "@/store/authStore";
-import { AuthApi, CategoryApi, Configuration, ProductApi, UserApi } from "@/api";
+import { AdminApi, AuthApi, CategoryApi, Configuration, MediaApi, ProductApi, UserApi } from "@/api";
+
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
 
 export const api = axios.create({
   baseURL: ENV.API_BASE_URL,
   withCredentials: true,
 });
 
+export const config = new Configuration({
+  basePath: ENV.API_BASE_URL,
+  baseOptions: {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  },
+});
+
 api.interceptors.request.use(
   (config) => config,
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );
 
 let isRefreshing = false;
@@ -39,12 +56,12 @@ api.interceptors.response.use(
       try {
         if (!isRefreshing) {
           isRefreshing = true;
-          const status = await useAuthStore.getState().refreshToken()
+          const isRefreshed = await useAuthStore.getState().refreshToken();
           isRefreshing = false;
 
-          if (status) {
+          if (isRefreshed) {
             onTokenRefreshed();
-            return api(originalRequest); 
+            return api(originalRequest);
           }
         } else {
           return new Promise((resolve) => {
@@ -59,48 +76,30 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 
 export async function request<T>(
-  method: "get" | "post" | "put" | "patch" | "delete",
-  url: string,
-  data?: any,
-  config?: AxiosRequestConfig
+  callback: any,
+  ...props: any[]
 ): Promise<ApiResponse<T>> {
   try {
-    const response = await api.request<ApiResponse<T>>({
-      url,
-      method,
-      data,
-      ...config,
-    });
-    console.log('me response, return data:',response.data)
+    const response = await callback(...props);
     return response.data;
   } catch (err: any) {
     return {
       message: err?.response?.data?.message || err.message,
       success: false,
-    };
+    } as ApiResponse<T>;
   }
 }
 
 
 
-const basePath = ENV.API_BASE_URL;
-
-export const config = new Configuration({
-  basePath,
-  baseOptions: {
-    withCredentials: true,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  },
-});
 
 export const authApi = new AuthApi(config)
-export const userApi = new UserApi(config)
+export const adminApi = new AdminApi(config)
 export const categoryApi = new CategoryApi(config)
 export const productApi = new ProductApi(config)
+export const mediaApi = new MediaApi(config)

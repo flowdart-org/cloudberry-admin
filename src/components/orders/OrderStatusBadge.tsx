@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { OrderStatus } from '@/types/order';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/tailwind';
 
 interface OrderStatusBadgeProps {
   status: OrderStatus;

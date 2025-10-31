@@ -2,7 +2,7 @@ import { Bell, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from './UserMenu';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/tailwind';
 import { ComingSoonDialog } from '@/components/common/ComingSoonDialog';
 import { useState } from 'react';
 

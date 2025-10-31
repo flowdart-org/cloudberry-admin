@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2 } from 'lucide-react';
 import { Product } from '@/types/product.types';
 import { formatCurrency } from '@/utils/currency';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/tailwind';
 
 interface ProductTableProps {
   products: Product[];

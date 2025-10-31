@@ -15,7 +15,7 @@ import { useAuthStore } from '@/store/authStore';
 
 export const UserMenu = () => {
   const navigate = useNavigate();
-  const {logout} = useAuthStore()
+  const {logout, user} = useAuthStore()
 
   return (
     <DropdownMenu>
@@ -27,8 +27,8 @@ export const UserMenu = () => {
             </AvatarFallback>
           </Avatar>
           <div className="hidden md:block text-left">
-            <p className="text-sm font-medium">Admin User</p>
-            <p className="text-xs text-muted-foreground">admin@example.com</p>
+            <p className="text-sm font-medium">Admin</p>
+            <p className="text-xs text-muted-foreground">{user?.email}</p>
           </div>
         </button>
       </DropdownMenuTrigger>

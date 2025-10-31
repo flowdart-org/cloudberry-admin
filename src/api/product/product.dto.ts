@@ -4,6 +4,7 @@ export interface CreateProductDTO {
   name: string;
   description: string;
   actualPrice: number;
+  discountPrice: number;
   discountPercent: number;
   categoryId: number;
   status: "active" | "inactive";
@@ -14,9 +15,11 @@ export interface CreateProductDTO {
 }
 
 export interface updateProductDTO {
+  id: string
   name?: string;
   description?: string;
   actualPrice?: number;
+  discountPrice?: number;
   discountPercent?: number;
   categoryId?: number;
   status?: "active" | "inactive";

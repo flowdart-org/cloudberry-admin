@@ -12,7 +12,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
             user: null,
 
-            login: () => {
+            login: async () => {
                 set({ isAuthenticated: true })
                 get().fetchUser()
             },
@@ -22,6 +22,8 @@ export const useAuthStore = create<AuthState>()(
                     const { success, data: user } = await meApi()
                     if (success && user) {
                         set({ user, isAuthenticated: true })
+                    } else {
+                        get().refreshToken()
                     }
                 } else {
                     set({ user: null })
@@ -38,6 +40,13 @@ export const useAuthStore = create<AuthState>()(
                     get().logout()
                     set({ isLoading: false })
                     return false
+                } else {
+                    const { success, data: user } = await meApi()
+                    if (success && user) {
+                        set({ user, isAuthenticated: true })
+                    } else {
+                        // get().logout()
+                    }
                 }
                 set({ isLoading: false })
                 return true

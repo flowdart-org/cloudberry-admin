@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/tailwind';
 import { formatCurrency } from '@/utils/currency';
 
 interface StatCardProps {

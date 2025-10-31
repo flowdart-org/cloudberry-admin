@@ -1,5 +1,5 @@
 
-import { request, userApi } from "@/lib/axios";
+import { request, adminApi } from "@/lib/axios";
 import { USER } from "./user.constants";
 import { AdminUser } from "@/types/user.types";
 import { ApiResponse } from "@/types/common";
@@ -15,7 +15,7 @@ const BASE_URL = '/admin';
 
 export const USER_SERVICES = {
   me: async (): Promise<ApiResponse<AdminUser>> => {
-    const response: any = await userApi.userControllerFindMe();
+    const response: any = await adminApi.adminControllerGetAdmin();
     return response.data;
   }
 }
