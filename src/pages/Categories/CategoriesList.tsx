@@ -1,3 +1,4 @@
+"use client"
 import { useState, useEffect } from "react";
 import { Category } from "@/types/category.types";
 import { Button } from "@/components/ui/button";
@@ -20,37 +21,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
-import { ComingSoonDialog } from "@/components/common/ComingSoonDialog";
 
 export const CategoriesList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [addStep, setAddStep] = useState<"basic" | "complete">("basic");
   const [newCategoryId, setNewCategoryId] = useState<string | null>(null);
-  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const [formData, setFormData] = useState({
+    id: "",
     name: "",
     thumbnail: "",
-    description: "",
     status: "inactive" as "active" | "inactive",
   });
 
@@ -96,8 +84,10 @@ export const CategoriesList = () => {
           status: "inactive" as "active" | "inactive"
         };
         const response = await CATEGORY_SERVICES.addCategory(categoryData);
-        setNewCategoryId(response.data.id);
-        setCategories([...categories, response.data]);
+        const newCategory = response.data;
+        setNewCategoryId(newCategory.id);
+        setFormData(prev => ({ ...prev, id: newCategory.id }));
+        setCategories([...categories, newCategory]);
         setAddStep("complete");
         toast({
           title: "Success",
@@ -115,40 +105,36 @@ export const CategoriesList = () => {
     }
   };
 
-  const handleUpdateCategoryImage = async () => {
+  const handleCompleteCategory = async () => {
     if (!newCategoryId) return;
 
     try {
       setIsLoading(true);
 
-      // Update name, image and status
-      const updates: any = {
-        name: formData.name,
-        status: formData.status
-      };
+      const response = await CATEGORY_SERVICES.updateCategory(
+        newCategoryId,
+        {
+          name: formData.name,
+          status: formData.status,
+          thumbnail: formData.thumbnail
+        }
+      );
 
-      if (formData.thumbnail) {
-        await CATEGORY_SERVICES.updateCategoryImage(newCategoryId, formData.thumbnail);
-      }
-
-      await CATEGORY_SERVICES.updateCategory(newCategoryId, updates);
-
-      // Refresh categories
-      await loadCategories();
-
+      setCategories(
+        categories.map((cat) =>
+          cat.id === newCategoryId ? response.data : cat
+        )
+      );
       setIsAddDialogOpen(false);
       resetForm();
-      setAddStep("basic");
-      setNewCategoryId(null);
-
       toast({
         title: "Success",
-        description: "Category updated successfully",
+        description: "Category setup completed successfully",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update category",
+        description: "Failed to complete category setup",
         variant: "destructive",
       });
     } finally {
@@ -162,17 +148,12 @@ export const CategoriesList = () => {
     try {
       setIsLoading(true);
 
-      // Update image if provided
-      if (formData.thumbnail && formData.thumbnail !== selectedCategory.thumbnail) {
-        await CATEGORY_SERVICES.updateCategoryImage(selectedCategory.id, formData.thumbnail);
-      }
-
-      // Update name and status
       const response = await CATEGORY_SERVICES.updateCategory(
         selectedCategory.id,
         {
           name: formData.name,
-          status: formData.status
+          status: formData.status,
+          thumbnail: formData.thumbnail
         }
       );
 
@@ -198,32 +179,22 @@ export const CategoriesList = () => {
     }
   };
 
-  const handleDeleteCategory = async () => {
-    // Coming soon functionality
-    setShowComingSoon(true);
-  };
-
   const openEditDialog = (category: Category) => {
     setSelectedCategory(category);
     setFormData({
+      id: category.id,
       name: category.name,
       thumbnail: category.thumbnail || "",
-      description: category.description,
       status: category.status,
     });
     setIsEditDialogOpen(true);
   };
 
-  const openDeleteDialog = (category: Category) => {
-    setSelectedCategory(category);
-    setShowComingSoon(true);
-  };
-
   const resetForm = () => {
     setFormData({
+      id: "",
       name: "",
       thumbnail: "",
-      description: "",
       status: "inactive",
     });
     setSelectedCategory(null);
@@ -232,8 +203,7 @@ export const CategoriesList = () => {
   };
 
   const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    category.description.toLowerCase().includes(searchQuery.toLowerCase())
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -307,16 +277,15 @@ export const CategoriesList = () => {
                   <TableCell className="text-center">{category.productCount || 0}</TableCell>
                   <TableCell className="text-center">
                     <Badge
-                      variant={category.status === "active" ? "default" : "secondary"}
+                      variant={category.status === "active" ? "default" : "destructive"}
                       className={`inline-flex ${category.status === "active"
-                        ? "bg-green-100 text-green-800"
+                        ? ""
                         : "bg-gray-200 text-gray-800"
                         }`}
                     >
                       {category.status.charAt(0).toUpperCase() + category.status.slice(1)}
                     </Badge>
                   </TableCell>
-
 
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -326,13 +295,6 @@ export const CategoriesList = () => {
                         onClick={() => openEditDialog(category)}
                       >
                         <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDeleteDialog(category)}
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </TableCell>
@@ -381,8 +343,8 @@ export const CategoriesList = () => {
                 Create Category
               </Button>
             ) : (
-              <Button onClick={handleUpdateCategoryImage} disabled={isLoading}>
-                Save Changes
+              <Button onClick={handleCompleteCategory} disabled={isLoading}>
+                Complete Setup
               </Button>
             )}
           </DialogFooter>
@@ -419,32 +381,6 @@ export const CategoriesList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the category "{selectedCategory?.name}".
-              This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSelectedCategory(null)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteCategory} disabled={isLoading}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <ComingSoonDialog
-              open={showComingSoon}
-              onOpenChange={setShowComingSoon}
-            />
     </div>
   );
 };

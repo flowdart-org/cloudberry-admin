@@ -24,13 +24,4 @@ export const CATEGORY_SERVICES = {
   ): Promise<ApiResponse<Category>> => {
     return await request(categoryApi.categoryControllerUpdate.bind(categoryApi),id, data);
   },
-  
-  updateCategoryImage: async (
-    id: string,
-    thumbnail: string
-  ): Promise<ApiResponse<Category>> => {
-    return await request(categoryApi.categoryControllerUpdate.bind(categoryApi), id, {
-      thumbnail,
-    });
-  },
 };

@@ -6,31 +6,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { X, Upload, Loader2 } from "lucide-react";
-import { MEDIA_SERVICES } from "@/api/media/media.service";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
 import ReactCrop, { Crop, PixelCrop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { MEDIA_SERVICES } from "@/api/media/media.service";
+import { CATEGORY_SERVICES } from "@/api/category/category.service";
 
 interface CategoryFormFieldsProps {
   formData: {
+    id: string;
     name: string;
     thumbnail: string;
-    description: string;
     status: "active" | "inactive";
   };
   setFormData: React.Dispatch<
     React.SetStateAction<{
+      id: string;
       name: string;
       thumbnail: string;
-      description: string;
       status: "active" | "inactive";
     }>
   >;
   step: "basic" | "complete";
 }
 
-// 🧩 Helper to get cropped image blob
 const getCroppedImg = (image: HTMLImageElement, crop: PixelCrop): Promise<Blob | null> => {
   return new Promise((resolve) => {
     const canvas = document.createElement("canvas");
@@ -73,13 +73,12 @@ export const CategoryFormFields = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const fetchUploadUrl = async (file: File) => {
+  const fetchUploadUrl = async (file: File): Promise<string> => {
     try {
-      // replace with your actual API that returns pre-signed Azure SAS URL
-      const response = await MEDIA_SERVICES.getUploadURL(file)
-      return response.data
+      const response = await MEDIA_SERVICES.getCategoryUploadUrl(formData.id, file);
+      return response.data;
     } catch {
-      return null;
+      throw new Error("Failed to get upload URL");
     }
   };
 
@@ -98,6 +97,7 @@ export const CategoryFormFields = ({
 
   const handleCropConfirm = async () => {
     if (!imgRef.current || !completedCrop) return;
+    
     const croppedBlob = await getCroppedImg(imgRef.current, completedCrop);
     if (!croppedBlob || !selectedFile) return;
 
@@ -105,31 +105,25 @@ export const CategoryFormFields = ({
       setIsUploading(true);
       const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
-      const blobUrl = await fetchUploadUrl(croppedFile);
-      if (!blobUrl) throw new Error("Failed to get upload URL");
+      const uploadUrl = await fetchUploadUrl(croppedFile);
+      if (!uploadUrl) throw new Error("Failed to get upload URL");
 
-      const response = await MEDIA_SERVICES.uploadImage(blobUrl, croppedFile);
+      await MEDIA_SERVICES.uploadImage(uploadUrl, croppedFile);
+      const response = await CATEGORY_SERVICES.getCategory(formData.id);
 
-      if (response.success) {
-        const cleanUrl = blobUrl.split("?")[0];
-        setFormData((prev) => ({
-          ...prev,
-          thumbnail: cleanUrl,
-        }));
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-        setIsCropDialogOpen(false);
-        setImageToCrop("");
-        setCompletedCrop(null);
-      } else {
-        toast({
-          title: "Upload failed",
-          description: response.message || "Failed to upload image",
-          variant: "destructive",
-        });
-      }
+      const publicUrl = uploadUrl.split('?')[0];
+      
+      setFormData(response.data);
+      
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+      
+      setIsCropDialogOpen(false);
+      setImageToCrop("");
+      setCompletedCrop(null);
+      setSelectedFile(null);
     } catch (error) {
       console.error("Upload error:", error);
       toast({
@@ -207,29 +201,35 @@ export const CategoryFormFields = ({
 
         <div className="grid gap-2">
           <Label htmlFor="thumbnail">Category Image</Label>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             {formData.thumbnail ? (
-              <div className="relative inline-block">
-                <img
-                  src={formData.thumbnail}
-                  alt="Category thumbnail"
-                  className="w-32 h-44 object-cover rounded-lg border shadow-sm"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
-                  onClick={handleRemoveImage}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div className="flex flex-col gap-3">
+                <div className="relative inline-block w-fit">
+                  <img
+                    src={formData.thumbnail}
+                    alt="Category thumbnail"
+                    className="w-48 h-64 object-cover rounded-lg border-2 shadow-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-7 w-7 rounded-full shadow-md"
+                    onClick={handleRemoveImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Current category image (3:4 ratio)
+                </p>
               </div>
             ) : (
-              <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground mb-2">
-                  Click to upload category image (3:4 ratio)
+              <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                <p className="text-sm font-medium mb-1">Upload Category Image</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Recommended: 3:4 aspect ratio (e.g., 600x800px)
                 </p>
                 <Input
                   id="thumbnail"
@@ -246,7 +246,14 @@ export const CategoryFormFields = ({
       </div>
 
       {/* Crop Modal */}
-      <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
+      <Dialog open={isCropDialogOpen} onOpenChange={(open) => {
+        if (!open && !isUploading) {
+          setIsCropDialogOpen(false);
+          setImageToCrop("");
+          setCompletedCrop(null);
+          setSelectedFile(null);
+        }
+      }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>
@@ -271,14 +278,19 @@ export const CategoryFormFields = ({
           </div>
 
           <DialogFooter>
-            <Button 
-              variant="secondary" 
-              onClick={() => setIsCropDialogOpen(false)}
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsCropDialogOpen(false);
+                setImageToCrop("");
+                setCompletedCrop(null);
+                setSelectedFile(null);
+              }}
               disabled={isUploading}
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCropConfirm}
               disabled={isUploading}
             >

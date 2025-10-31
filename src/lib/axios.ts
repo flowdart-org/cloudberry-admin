@@ -98,8 +98,8 @@ export async function request<T>(
 
 
 
-export const authApi = new AuthApi(config)
-export const adminApi = new AdminApi(config)
-export const categoryApi = new CategoryApi(config)
-export const productApi = new ProductApi(config)
-export const mediaApi = new MediaApi(config)
+export const authApi = new AuthApi(config, ENV.API_BASE_URL, api)
+export const adminApi = new AdminApi(config, ENV.API_BASE_URL, api)
+export const categoryApi = new CategoryApi(config, ENV.API_BASE_URL, api)
+export const productApi = new ProductApi(config, ENV.API_BASE_URL, api)
+export const mediaApi = new MediaApi(config, ENV.API_BASE_URL, api)

@@ -21,11 +21,21 @@ import {
 const configuration = new Configuration();
 const apiInstance = new MediaApi(configuration);
 
-const { status, data } = await apiInstance.mediaControllerGetUploadUrl();
+let fileName: string; // (default to undefined)
+let mimeType: string; // (default to undefined)
+
+const { status, data } = await apiInstance.mediaControllerGetUploadUrl(
+    fileName,
+    mimeType
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **fileName** | [**string**] |  | defaults to undefined|
+| **mimeType** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
