@@ -1,10 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Category } from "@/types/category.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import ReactCrop, { Crop as CropType, PixelCrop } from "react-image-crop";
-import "react-image-crop/dist/ReactCrop.css";
 import { CategoryFormFields } from "@/components/categories/CategoryFormFields";
 import {
   Table,
@@ -36,7 +34,6 @@ import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { ComingSoonDialog } from "@/components/common/ComingSoonDialog";
-import { MEDIA_SERVICES } from "@/api/media/media.service";
 
 export const CategoriesList = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,19 +54,6 @@ export const CategoriesList = () => {
     status: "inactive" as "active" | "inactive",
   });
 
-  // Image crop states
-  const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
-  const [imageToCrop, setImageToCrop] = useState<string>("");
-  const [crop, setCrop] = useState<CropType>({
-    unit: "%",
-    width: 75,
-    height: 100,
-    x: 12.5,
-    y: 0,
-  });
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
-
   useEffect(() => {
     loadCategories();
   }, []);
@@ -80,8 +64,6 @@ export const CategoriesList = () => {
       const response = await CATEGORY_SERVICES.getCategories();
       if (response.success) {
         setCategories(response.data);
-        // } else {
-        //   throw new Error(response.message)
       }
     } catch (error) {
       toast({
@@ -92,159 +74,6 @@ export const CategoriesList = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fetchBlogUrl = async (file: File) => {
-      const response = await MEDIA_SERVICES.getUploadURL(file)
-      return response.data
-    }
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  try {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Get pre-signed SAS URL from backend
-    const blobUrl = await fetchBlogUrl(file);
-    if (!blobUrl) throw new Error("Failed to fetch blob URL");
-
-    // Upload the file directly to Azure
-    const response = await MEDIA_SERVICES.uploadImage(blobUrl, file);
-
-    if (response.success) {
-      console.log("✅ Image uploaded successfully:", response.data);
-      // Optionally set preview
-      // setUploadedImageUrl(response.data.url);
-    } else {
-      console.error("❌ Upload failed:", response.message);
-    }
-  } catch (error) {
-    console.error("Error uploading image:", error);
-  }
-};
-
-
-
-  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { width, height } = e.currentTarget;
-    const aspect = 3 / 4;
-
-    let cropWidth = width;
-    let cropHeight = width / aspect;
-
-    if (cropHeight > height) {
-      cropHeight = height;
-      cropWidth = height * aspect;
-    }
-
-    const x = (width - cropWidth) / 2;
-    const y = (height - cropHeight) / 2;
-
-    setCrop({
-      unit: "px",
-      width: cropWidth,
-      height: cropHeight,
-      x,
-      y,
-    });
-  };
-
-  const getCroppedImg = (): Promise<Blob | null> => {
-  return new Promise((resolve) => {
-    const image = imgRef.current;
-    const crop = completedCrop;
-
-    if (!image || !crop) {
-      resolve(null);
-      return;
-    }
-
-    const canvas = document.createElement("canvas");
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext("2d");
-
-    if (!ctx) {
-      resolve(null);
-      return;
-    }
-
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
-
-    canvas.toBlob((blob) => {
-      resolve(blob || null);
-    }, "image/jpeg");
-  });
-};
-
-
-
-  const handleCropComplete = async () => {
-  const croppedBlob = await getCroppedImg();
-  if (!croppedBlob) return;
-
-  try {
-    // Get original file name & type
-    const originalFile = (handleImageUpload as any).currentFile as File;
-    const croppedFile = new File([croppedBlob], originalFile.name, { type: originalFile.type });
-
-    // Step 1: Get upload URL
-    const blobUrl = await fetchBlogUrl(croppedFile);
-    if (!blobUrl) throw new Error("Failed to get blob URL");
-
-    // Step 2: Upload image file directly
-    const response = await MEDIA_SERVICES.uploadImage(blobUrl, croppedFile);
-
-    if (response.success) {
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-
-      // Step 3: Save blob URL for preview (thumbnail)
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail: blobUrl.split("?")[0], // Remove SAS token for safe storage
-      }));
-    } else {
-      toast({
-        title: "Error",
-        description: response.message,
-        variant: "destructive",
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    toast({
-      title: "Error",
-      description: "Failed to upload cropped image",
-      variant: "destructive",
-    });
-  } finally {
-    // Close crop modal
-    setIsCropDialogOpen(false);
-    setImageToCrop("");
-    setCompletedCrop(null);
-  }
-};
-
-
-  const handleRemoveImage = () => {
-    setFormData({
-      ...formData,
-      thumbnail: "",
-    });
   };
 
   const handleAddCategory = async () => {
@@ -370,26 +199,8 @@ export const CategoriesList = () => {
   };
 
   const handleDeleteCategory = async () => {
-    if (!selectedCategory) return;
-    // try {
-    //   setIsLoading(true);
-    //   await CATEGORY_SERVICES.deleteCategory(selectedCategory.id);
-    //   setCategories(categories.filter((cat) => cat.id !== selectedCategory.id));
-    //   setIsDeleteDialogOpen(false);
-    //   setSelectedCategory(null);
-    //   toast({
-    //     title: "Success",
-    //     description: "Category deleted successfully",
-    //   });
-    // } catch (error) {
-    //   toast({
-    //     title: "Error",
-    //     description: "Failed to delete category",
-    //     variant: "destructive",
-    //   });
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    // Coming soon functionality
+    setShowComingSoon(true);
   };
 
   const openEditDialog = (category: Category) => {
@@ -404,10 +215,8 @@ export const CategoriesList = () => {
   };
 
   const openDeleteDialog = (category: Category) => {
-    setShowComingSoon(true)
-
-    // setSelectedCategory(category);
-    // setIsDeleteDialogOpen(true);
+    setSelectedCategory(category);
+    setShowComingSoon(true);
   };
 
   const resetForm = () => {
@@ -481,15 +290,15 @@ export const CategoriesList = () => {
             ) : (
               filteredCategories.map((category) => (
                 <TableRow key={category.id}>
-                  <TableCell className="text-center">
+                  <TableCell>
                     {category.thumbnail ? (
                       <img
                         src={category.thumbnail}
                         alt={category.name}
-                        className="w-12 h-16 object-cover rounded"
+                        className="w-12 h-16 object-cover rounded border shadow-sm"
                       />
                     ) : (
-                      <div className="w-12 h-16 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                      <div className="w-12 h-16 bg-muted/50 rounded flex items-center justify-center text-xs text-muted-foreground border">
                         No image
                       </div>
                     )}
@@ -555,8 +364,6 @@ export const CategoriesList = () => {
           <CategoryFormFields
             formData={formData}
             setFormData={setFormData}
-            onImageUpload={handleImageUpload}
-            onRemoveImage={handleRemoveImage}
             step={addStep}
           />
           <DialogFooter>
@@ -594,8 +401,6 @@ export const CategoriesList = () => {
           <CategoryFormFields
             formData={formData}
             setFormData={setFormData}
-            onImageUpload={handleImageUpload}
-            onRemoveImage={handleRemoveImage}
             step="complete"
           />
           <DialogFooter>
@@ -611,49 +416,6 @@ export const CategoriesList = () => {
             <Button onClick={handleEditCategory} disabled={isLoading}>
               Update Category
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Image Crop Dialog */}
-      <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Crop Category Image</DialogTitle>
-            <DialogDescription>
-              Adjust the crop area to fit a 3:4 aspect ratio
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-center py-4">
-            {imageToCrop && (
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={3 / 4}
-              >
-                <img
-                  ref={imgRef}
-                  src={imageToCrop}
-                  onLoad={onImageLoad}
-                  alt="Crop preview"
-                  style={{ maxHeight: "60vh" }}
-                />
-              </ReactCrop>
-            )}
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsCropDialogOpen(false);
-                setImageToCrop("");
-                setCompletedCrop(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCropComplete}>Apply Crop</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

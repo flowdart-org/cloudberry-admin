@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Loader2 } from "lucide-react";
 import { MEDIA_SERVICES } from "@/api/media/media.service";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
@@ -67,10 +67,11 @@ export const CategoryFormFields = ({
 }: CategoryFormFieldsProps) => {
   const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
   const [imageToCrop, setImageToCrop] = useState<string>("");
-  const [crop, setCrop] = useState<Crop>({ unit: "%", width: 60, aspect: 3 / 4 });
+  const [crop, setCrop] = useState<Crop>({ unit: "%", width: 60, height: 80, x: 20, y: 10 });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchUploadUrl = async (file: File) => {
     try {
@@ -101,6 +102,7 @@ export const CategoryFormFields = ({
     if (!croppedBlob || !selectedFile) return;
 
     try {
+      setIsUploading(true);
       const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
       const blobUrl = await fetchUploadUrl(croppedFile);
@@ -109,30 +111,34 @@ export const CategoryFormFields = ({
       const response = await MEDIA_SERVICES.uploadImage(blobUrl, croppedFile);
 
       if (response.success) {
+        const cleanUrl = blobUrl.split("?")[0];
         setFormData((prev) => ({
           ...prev,
-          thumbnail: blobUrl.split("?")[0], // clean URL for display
+          thumbnail: cleanUrl,
         }));
         toast({
-          title: "Image uploaded successfully",
+          title: "Success",
+          description: "Image uploaded successfully",
         });
+        setIsCropDialogOpen(false);
+        setImageToCrop("");
+        setCompletedCrop(null);
       } else {
         toast({
           title: "Upload failed",
-          description: response.message,
+          description: response.message || "Failed to upload image",
           variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Upload error:", error);
       toast({
-        title: "Error uploading image",
+        title: "Error",
+        description: "Failed to upload image",
         variant: "destructive",
       });
     } finally {
-      setIsCropDialogOpen(false);
-      setImageToCrop("");
-      setCompletedCrop(null);
+      setIsUploading(false);
     }
   };
 
@@ -207,30 +213,31 @@ export const CategoryFormFields = ({
                 <img
                   src={formData.thumbnail}
                   alt="Category thumbnail"
-                  className="w-32 h-42 object-cover rounded-lg border"
+                  className="w-32 h-44 object-cover rounded-lg border shadow-sm"
                 />
                 <Button
                   type="button"
                   variant="destructive"
                   size="icon"
-                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full shadow-md"
                   onClick={handleRemoveImage}
                 >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
             ) : (
-              <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
                 <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground mb-2">
-                  Upload category image (3:4 ratio)
+                  Click to upload category image (3:4 ratio)
                 </p>
                 <Input
                   id="thumbnail"
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  className="max-w-xs mx-auto"
+                  className="max-w-xs mx-auto cursor-pointer"
+                  disabled={isUploading}
                 />
               </div>
             )}
@@ -264,10 +271,26 @@ export const CategoryFormFields = ({
           </div>
 
           <DialogFooter>
-            <Button variant="secondary" onClick={() => setIsCropDialogOpen(false)}>
+            <Button 
+              variant="secondary" 
+              onClick={() => setIsCropDialogOpen(false)}
+              disabled={isUploading}
+            >
               Cancel
             </Button>
-            <Button onClick={handleCropConfirm}>Save Crop</Button>
+            <Button 
+              onClick={handleCropConfirm}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                "Save & Upload"
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
