@@ -18,15 +18,17 @@ export const useAuthStore = create<AuthState>()(
             },
 
             fetchUser: async () => {
-                if (get().isAuthenticated) {
-                    const { success, data: user } = await USER_SERVICES.me()
-                    if (success && user) {
-                        set({ user, isAuthenticated: true })
-                    } else {
+                try {
+                    if (get().isAuthenticated) {
+                        const { success, data: user } = await USER_SERVICES.me()
+                        if (success && user) {
+                            set({ user, isAuthenticated: true })
+                        }
+                    }
+                } catch (error: any) {
+                    if (error?.response?.data?.error?.code === 'ForbiddenException') {
                         get().logout()
                     }
-                } else {
-                    set({ user: null })
                 }
                 set({ isLoading: false })
             },
@@ -38,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
                     get().logout()
                     set({ isLoading: false })
                     return false
-                } 
+                }
                 set({ isLoading: false })
                 return true
             },

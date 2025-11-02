@@ -6,11 +6,10 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**productControllerCreate**](#productcontrollercreate) | **POST** /api/product | |
 |[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/product | |
-|[**productControllerFindOne**](#productcontrollerfindone) | **GET** /api/product/{id} | |
-|[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/product/{id} | |
+|[**productControllerFindFeed**](#productcontrollerfindfeed) | **GET** /api/product/feed | |
 
 # **productControllerCreate**
-> productControllerCreate(createProductDto)
+> ProductControllerCreate200Response productControllerCreate(createProductDto)
 
 
 ### Example
@@ -41,7 +40,7 @@ const { status, data } = await apiInstance.productControllerCreate(
 
 ### Return type
 
-void (empty response body)
+**ProductControllerCreate200Response**
 
 ### Authorization
 
@@ -50,18 +49,18 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** |  |  -  |
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerFindAll**
-> productControllerFindAll()
+> ProductControllerFindAll200Response productControllerFindAll()
 
 
 ### Example
@@ -84,7 +83,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**ProductControllerFindAll200Response**
 
 ### Authorization
 
@@ -93,7 +92,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -103,8 +102,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindOne**
-> productControllerFindOne()
+# **productControllerFindFeed**
+> ProductControllerFindAll200Response productControllerFindFeed()
 
 
 ### Example
@@ -118,23 +117,16 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductApi(configuration);
 
-let id: string; // (default to undefined)
-
-const { status, data } = await apiInstance.productControllerFindOne(
-    id
-);
+const { status, data } = await apiInstance.productControllerFindFeed();
 ```
 
 ### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] |  | defaults to undefined|
+This endpoint does not have any parameters.
 
 
 ### Return type
 
-void (empty response body)
+**ProductControllerFindAll200Response**
 
 ### Authorization
 
@@ -143,61 +135,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **productControllerUpdate**
-> productControllerUpdate(updateProductDto)
-
-
-### Example
-
-```typescript
-import {
-    ProductApi,
-    Configuration,
-    UpdateProductDto
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
-
-let id: string; // (default to undefined)
-let updateProductDto: UpdateProductDto; //
-
-const { status, data } = await apiInstance.productControllerUpdate(
-    id,
-    updateProductDto
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **updateProductDto** | **UpdateProductDto**|  | |
-| **id** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details

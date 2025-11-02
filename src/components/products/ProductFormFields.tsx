@@ -5,9 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Upload, X, Check } from "lucide-react";
-import { VariantDto, ProductImage } from "@/types/product.types";
+import { X, Loader2 } from "lucide-react";
+import { VariantDto } from "@/types/product.types";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Category } from "@/types/category.types";
+import { CATEGORY_SERVICES } from "@/api/category/category.service";
 
 interface ProductFormFieldsProps {
   formData: {
@@ -20,18 +23,14 @@ interface ProductFormFieldsProps {
     tryOn: boolean;
     tags: string[];
     variants: VariantDto[];
-    images: ProductImage[];
-    thumbnail: string;
   };
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   newTag: string;
   setNewTag: React.Dispatch<React.SetStateAction<string>>;
   newVariant: VariantDto;
   setNewVariant: React.Dispatch<React.SetStateAction<VariantDto>>;
-  onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveImage: (imageId: string) => void;
-  onSetThumbnail: (imageUrl: string) => void;
   calculateDiscountPrice: (actualPrice: number, discountPercent: number) => number;
+  categories: Category[];
 }
 
 export const ProductFormFields = ({
@@ -41,16 +40,53 @@ export const ProductFormFields = ({
   setNewTag,
   newVariant,
   setNewVariant,
-  onImageUpload,
-  onRemoveImage,
-  onSetThumbnail,
   calculateDiscountPrice,
+  categories: categoriesProp,
 }: ProductFormFieldsProps) => {
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
-      setNewTag("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (categoriesProp && categoriesProp.length > 0) {
+      setCategories(categoriesProp);
+      setLoadingCategories(false);
+    } else {
+      loadCategories();
     }
+  }, [categoriesProp]);
+
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const fetchedCategories = await CATEGORY_SERVICES.getCategories();
+      setCategories(fetchedCategories.data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load categories. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const addTag = () => {
+    const trimmedTag = newTag.trim();
+    if (!trimmedTag) {
+      return;
+    }
+    if (formData.tags.includes(trimmedTag)) {
+      toast({
+        title: "Duplicate Tag",
+        description: "This tag already exists.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setFormData({ ...formData, tags: [...formData.tags, trimmedTag] });
+    setNewTag("");
   };
 
   const removeTag = (tag: string) => {
@@ -58,90 +94,57 @@ export const ProductFormFields = ({
   };
 
   const addVariant = () => {
-    if (newVariant.size.trim() && newVariant.stock >= 0) {
-      setFormData({ ...formData, variants: [...formData.variants, { ...newVariant }] });
-      setNewVariant({ size: "", stock: 0 });
+    const trimmedSize = newVariant.size.trim();
+    
+    if (!trimmedSize) {
+      toast({
+        title: "Invalid Variant",
+        description: "Size cannot be empty.",
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (newVariant.stock < 0) {
+      toast({
+        title: "Invalid Stock",
+        description: "Stock cannot be negative.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check for duplicate size
+    if (formData.variants.some((v) => v.size.toLowerCase() === trimmedSize.toLowerCase())) {
+      toast({
+        title: "Duplicate Variant",
+        description: "A variant with this size already exists.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setFormData({ 
+      ...formData, 
+      variants: [...formData.variants, { size: trimmedSize, stock: newVariant.stock }] 
+    });
+    setNewVariant({ size: "", stock: 0 });
   };
 
   const removeVariant = (index: number) => {
     setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
   };
 
+  const handlePriceChange = (value: string, field: "actualPrice" | "discountPercent") => {
+    // Only allow positive numbers and decimals
+    const numValue = parseFloat(value);
+    if (value === "" || (!isNaN(numValue) && numValue >= 0)) {
+      setFormData({ ...formData, [field]: value });
+    }
+  };
+
   return (
     <div className="grid gap-4 py-4">
-      {/* Image Upload Section */}
-      <div className="grid gap-2">
-        <Label>Product Images *</Label>
-        <div className="grid gap-4">
-          <div className="flex items-center justify-center w-full">
-            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
-                <p className="mb-2 text-sm text-muted-foreground">
-                  <span className="font-semibold">Click to upload</span> and crop images
-                </p>
-                <p className="text-xs text-muted-foreground">Images will be cropped to 3:4 ratio</p>
-              </div>
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*"
-                onChange={onImageUpload}
-              />
-            </label>
-          </div>
-
-          {formData.images.length > 0 && (
-            <div className="grid grid-cols-3 gap-4">
-              {formData.images.map((image) => (
-                <div key={image.id} className="relative group">
-                  <AspectRatio ratio={3 / 4} className="bg-muted rounded-lg overflow-hidden">
-                    <img
-                      src={image.url}
-                      alt="Product"
-                      className="object-cover w-full h-full"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant={formData.thumbnail === image.url ? "default" : "secondary"}
-                        onClick={() => onSetThumbnail(image.url)}
-                        className="h-8"
-                      >
-                        {formData.thumbnail === image.url ? (
-                          <>
-                            <Check className="h-3 w-3 mr-1" />
-                            Thumbnail
-                          </>
-                        ) : (
-                          "Set Thumbnail"
-                        )}
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => onRemoveImage(image.id)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </AspectRatio>
-                  {formData.thumbnail === image.url && (
-                    <Badge className="absolute top-2 left-2 bg-primary">
-                      Thumbnail
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
       <div className="grid gap-2">
         <Label htmlFor="name">Product Name *</Label>
         <Input
@@ -149,6 +152,7 @@ export const ProductFormFields = ({
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Enter product name"
+          maxLength={200}
         />
       </div>
 
@@ -160,7 +164,11 @@ export const ProductFormFields = ({
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           placeholder="Enter product description"
           rows={3}
+          maxLength={1000}
         />
+        <p className="text-xs text-muted-foreground text-right">
+          {formData.description.length}/1000
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -170,8 +178,9 @@ export const ProductFormFields = ({
             id="actualPrice"
             type="number"
             step="0.01"
+            min="0"
             value={formData.actualPrice}
-            onChange={(e) => setFormData({ ...formData, actualPrice: e.target.value })}
+            onChange={(e) => handlePriceChange(e.target.value, "actualPrice")}
             placeholder="0.00"
           />
         </div>
@@ -180,31 +189,51 @@ export const ProductFormFields = ({
           <Input
             id="discountPercent"
             type="number"
-            step="0.01"
+            step="1"
+            min="0"
+            max="100"
             value={formData.discountPercent}
-            onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
+            onChange={(e) => handlePriceChange(e.target.value, "discountPercent")}
             placeholder="0"
           />
         </div>
       </div>
 
-      {formData.actualPrice && formData.discountPercent && (
+      {formData.actualPrice && parseFloat(formData.actualPrice) > 0 && formData.discountPercent && parseFloat(formData.discountPercent) > 0 && (
         <div className="rounded-md bg-muted p-3">
-          <p className="text-sm text-muted-foreground">
-            Discount Price: ${calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent)).toFixed(2)}
+          <p className="text-sm font-medium">
+            Final Price: ${calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent)).toFixed(2)}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Savings: ${(parseFloat(formData.actualPrice) - calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent))).toFixed(2)} ({formData.discountPercent}% off)
           </p>
         </div>
       )}
 
       <div className="grid gap-2">
-        <Label htmlFor="categoryId">Category ID *</Label>
-        <Input
-          id="categoryId"
-          type="number"
-          value={formData.categoryId}
-          onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-          placeholder="Enter category ID"
-        />
+        <Label htmlFor="categoryId">Category *</Label>
+        {loadingCategories ? (
+          <div className="flex items-center justify-center p-4 border rounded-md">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-sm text-muted-foreground">Loading categories...</span>
+          </div>
+        ) : (
+          <Select 
+            value={formData.categoryId} 
+            onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <div className="grid gap-2">
@@ -235,8 +264,14 @@ export const ProductFormFields = ({
           <Input
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
             placeholder="Add a tag"
+            maxLength={50}
           />
           <Button type="button" onClick={addTag} variant="outline">
             Add
@@ -255,20 +290,22 @@ export const ProductFormFields = ({
       </div>
 
       <div className="grid gap-2">
-        <Label>Variants *</Label>
+        <Label>Variants (Size & Stock) *</Label>
         <div className="flex gap-2">
           <Input
             value={newVariant.size}
             onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
             placeholder="Size (e.g., S, M, L)"
             className="flex-1"
+            maxLength={20}
           />
           <Input
             type="number"
+            min="0"
             value={newVariant.stock}
             onChange={(e) => setNewVariant({ ...newVariant, stock: parseInt(e.target.value) || 0 })}
             placeholder="Stock"
-            className="w-24"
+            className="w-32"
           />
           <Button type="button" onClick={addVariant} variant="outline">
             Add
@@ -277,7 +314,7 @@ export const ProductFormFields = ({
         {formData.variants.length > 0 && (
           <div className="mt-2 space-y-2">
             {formData.variants.map((variant, index) => (
-              <div key={index} className="flex items-center justify-between rounded-md border border-border p-2">
+              <div key={index} className="flex items-center justify-between rounded-md border border-border p-3">
                 <span className="text-sm">
                   Size: <strong>{variant.size}</strong> - Stock: <strong>{variant.stock}</strong>
                 </span>
@@ -286,7 +323,7 @@ export const ProductFormFields = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => removeVariant(index)}
-                  className="h-6 w-6 p-0"
+                  className="h-8 w-8 p-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>

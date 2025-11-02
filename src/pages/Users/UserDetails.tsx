@@ -28,6 +28,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { ExtendedUser } from '@/types/user.types';
+import { useEffect, useState } from 'react';
+import { USER_SERVICES } from '@/api/user/user.service';
 
 // Mock user data
 const mockUser = {
@@ -85,6 +88,16 @@ const UserDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [user, setUser] = useState<ExtendedUser | null>(null)
+
+  useEffect(() => {
+    fetchUser()
+  }, [])
+
+  const fetchUser = async () =>  {
+    const data = await USER_SERVICES.fetchUser(id)
+    setUser(data)
+  }
 
   const handleBlockUser = () => {
     toast({
@@ -134,7 +147,7 @@ const UserDetails = () => {
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={handleBlockUser}>
-                    Block User
+                    Suspend User
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -142,7 +155,7 @@ const UserDetails = () => {
           ) : (
             <Button onClick={handleUnblockUser}>
               <CheckCircle className="mr-2 h-4 w-4" />
-              Unblock User
+              Active User
             </Button>
           )}
         </div>
@@ -193,17 +206,12 @@ const UserDetails = () => {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
-                  {mockUser.firstName[0]}{mockUser.lastName[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div>
+              <div className='flex justify-between w-full'>
                 <h3 className="text-xl font-semibold">
-                  {mockUser.firstName} {mockUser.lastName}
+                  {user?.name || 'Unavailable'}
                 </h3>
-                <Badge variant={mockUser.status === 'active' ? 'default' : 'destructive'}>
-                  {mockUser.status}
+                <Badge variant={user?.status === 'active' ? 'active' : 'destructive'}>
+                  {user?.status || 'active'}
                 </Badge>
               </div>
             </div>
@@ -211,23 +219,23 @@ const UserDetails = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{mockUser.email}</span>
+                <span>{user?.email || 'Unavailable'}</span>
               </div>
               
               <div className="flex items-center gap-3 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>{mockUser.phone}</span>
+                <span>{user?.phone || 'Unavailable'}</span>
               </div>
               
               <div className="flex items-center gap-3 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Joined {formatDate(mockUser.createdAt, 'long')}</span>
+                <span>Joined {formatDate(user?.createdAt, 'long')}</span>
               </div>
 
               <div className="pt-4 border-t border-border">
                 <div className="text-sm text-muted-foreground mb-1">Role</div>
                 <Badge variant="secondary" className="capitalize">
-                  {mockUser.role}
+                  {user?.role || 'user'}
                 </Badge>
               </div>
 

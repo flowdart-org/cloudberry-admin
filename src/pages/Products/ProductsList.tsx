@@ -9,9 +9,12 @@ import { toast } from "sonner";
 import { Product, VariantDto, ProductImage } from "@/types/product.types";
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
-import { PRODUCT_SERVICES } from "@/api/product/mock.product.service";
+import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { CreateProductDTO, updateProductDTO } from "@/api/product/product.dto";
 import { ProductFormFields } from "@/components/products/ProductFormFields";
+import { productApi } from "@/lib/axios";
+import { ProductForm } from "@/components/products/ProductForm";
+import { ProductImageUpload } from "@/components/products/ProductImageUpload";
 
 export default function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -21,6 +24,7 @@ export default function ProductTable() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+  const [createdProductId, setCreatedProductId] = useState<string | null>(null);
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
@@ -59,6 +63,7 @@ export default function ProductTable() {
   });
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+
 
   useEffect(() => {
     fetchProducts();
@@ -101,15 +106,15 @@ export default function ProductTable() {
       return;
     }
 
-    if (formData.images.length === 0) {
-      toast.error("Please add at least one image");
-      return;
-    }
+    // if (formData.images.length === 0) {
+    //   toast.error("Please add at least one image");
+    //   return;
+    // }
 
-    if (!formData.thumbnail) {
-      toast.error("Please set a thumbnail image");
-      return;
-    }
+    // if (!formData.thumbnail) {
+    //   toast.error("Please set a thumbnail image");
+    //   return;
+    // }
 
     try {
       const productData: CreateProductDTO = {
@@ -117,16 +122,20 @@ export default function ProductTable() {
         description: formData.description,
         actualPrice: parseFloat(formData.actualPrice),
         discountPercent: parseFloat(formData.discountPercent) || 0,
-        categoryId: parseInt(formData.categoryId),
+        categoryId: formData.categoryId,
         status: formData.status,
         tryOn: formData.tryOn,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
         images: formData.images,
-        thumbnail: formData.thumbnail,
+        variants: [],
+        discountPrice: 100,
+        // thumbnail: formData.thumbnail,
       };
 
-      const response = await PRODUCT_SERVICES.addProduct(productData);
-      
+      // const response = await PRODUCT_SERVICES.addProduct(productData);
+      const { data } = await productApi.productControllerCreate(productData)
+      const response = data
+
       if (response.data) {
         // Update the product with variants
         await PRODUCT_SERVICES.updateProducts(response.data.id!, {
@@ -192,17 +201,17 @@ export default function ProductTable() {
   };
 
   const handleDeleteProduct = async () => {
-    if (deleteProductId) {
-      try {
-        await PRODUCT_SERVICES.deleteProduct(deleteProductId);
-        await fetchProducts();
-        setDeleteProductId(null);
-        toast.success("Product deleted successfully");
-      } catch (error) {
-        toast.error("Failed to delete product");
-        console.error("Error deleting product:", error);
-      }
-    }
+    // if (deleteProductId) {
+    //   try {
+    //     await PRODUCT_SERVICES.deleteProduct(deleteProductId);
+    //     await fetchProducts();
+    //     setDeleteProductId(null);
+    //     toast.success("Product deleted successfully");
+    //   } catch (error) {
+    //     toast.error("Failed to delete product");
+    //     console.error("Error deleting product:", error);
+    //   }
+    // }
   };
 
   const openEditDialog = (product: Product) => {
@@ -282,11 +291,11 @@ export default function ProductTable() {
   const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const { width, height } = e.currentTarget;
     const aspectRatio = 3 / 4;
-    
+
     // Calculate initial crop to maintain 3:4 aspect ratio
     const cropWidth = 75;
     const cropHeight = cropWidth / aspectRatio * (width / height);
-    
+
     setCrop({
       unit: '%',
       width: cropWidth,
@@ -344,7 +353,7 @@ export default function ProductTable() {
   const handleCropComplete = async () => {
     try {
       const croppedImageUrl = await getCroppedImg();
-      
+
       const newImage: ProductImage = {
         id: Math.random().toString(36).substr(2, 9),
         url: croppedImageUrl,
@@ -381,7 +390,7 @@ export default function ProductTable() {
     setFormData((prev) => {
       const updatedImages = prev.images.filter((img) => img.id !== imageId);
       const removedImage = prev.images.find((img) => img.id === imageId);
-      
+
       let newThumbnail = prev.thumbnail;
       if (removedImage?.url === prev.thumbnail && updatedImages.length > 0) {
         newThumbnail = updatedImages[0].url;
@@ -404,6 +413,24 @@ export default function ProductTable() {
     }));
   };
 
+// test functionss
+
+const handleSuccess = (product: Product) => {
+    console.log("Product saved:", product);
+    if (product.id) {
+      setCreatedProductId(product.id);
+    }
+  };
+
+  const handleCancel = () => {
+    console.log("Form cancelled");
+    setCreatedProductId(null);
+  };
+
+  const handleImageUploadComplete = () => {
+    console.log("Image upload complete");
+    setCreatedProductId(null);
+  };
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -466,13 +493,13 @@ export default function ProductTable() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {product.thumbnail ?
-                          <img
-                      src={product.thumbnail}
-                      alt="Product"
-                      className="object-cover w-10 h-full"
-                    /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-2xl">
-                            📦
-                          </div>}
+                            <img
+                              src={product.thumbnail}
+                              alt="Product"
+                              className="object-cover w-10 h-full"
+                            /> : <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent text-2xl">
+                              📦
+                            </div>}
                           <div>
                             <div className="font-medium text-foreground">{product.name}</div>
                             <div className="text-sm text-muted-foreground line-clamp-1">{product.description}</div>
@@ -538,18 +565,24 @@ export default function ProductTable() {
             <DialogTitle>Add Product</DialogTitle>
             <DialogDescription>Add a new product to your inventory</DialogDescription>
           </DialogHeader>
-          <ProductFormFields
+          {/* <ProductFormFields
             formData={formData}
             setFormData={setFormData}
             newTag={newTag}
             setNewTag={setNewTag}
             newVariant={newVariant}
             setNewVariant={setNewVariant}
-            onImageUpload={handleImageUpload}
-            onRemoveImage={removeImage}
-            onSetThumbnail={setThumbnail}
+            categories={[]}
             calculateDiscountPrice={calculateDiscountPrice}
-          />
+          /> */}
+          {!createdProductId ? (
+        <ProductForm onSuccess={handleSuccess} onCancel={handleCancel} />
+      ) : (
+        <ProductImageUpload 
+          productId={createdProductId} 
+          onComplete={handleImageUploadComplete}
+        />
+      )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel
@@ -573,12 +606,10 @@ export default function ProductTable() {
             setNewTag={setNewTag}
             newVariant={newVariant}
             setNewVariant={setNewVariant}
-            onImageUpload={handleImageUpload}
-            onRemoveImage={removeImage}
-            onSetThumbnail={setThumbnail}
+            categories={[]}
             calculateDiscountPrice={calculateDiscountPrice}
           />
-          <DialogFooter>
+          <DialogFooter>  
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>

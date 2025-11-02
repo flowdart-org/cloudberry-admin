@@ -5,7 +5,7 @@ All URIs are relative to *http://localhost*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**mediaControllerGetCategoryUploadUrl**](#mediacontrollergetcategoryuploadurl) | **GET** /api/media/upload/category/{categoryId} | |
-|[**mediaControllerGetPublicUploadUrl**](#mediacontrollergetpublicuploadurl) | **GET** /api/media/media/upload/product/{productId} | |
+|[**mediaControllerGetProductUploadUrl**](#mediacontrollergetproductuploadurl) | **GET** /api/media/upload/product/{productId} | |
 
 # **mediaControllerGetCategoryUploadUrl**
 > mediaControllerGetCategoryUploadUrl()
@@ -63,8 +63,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **mediaControllerGetPublicUploadUrl**
-> mediaControllerGetPublicUploadUrl()
+# **mediaControllerGetProductUploadUrl**
+> mediaControllerGetProductUploadUrl()
 
 
 ### Example
@@ -82,7 +82,7 @@ let productId: string; // (default to undefined)
 let fileName: string; // (default to undefined)
 let mimeType: string; // (default to undefined)
 
-const { status, data } = await apiInstance.mediaControllerGetPublicUploadUrl(
+const { status, data } = await apiInstance.mediaControllerGetProductUploadUrl(
     productId,
     fileName,
     mimeType

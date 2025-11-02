@@ -4,64 +4,14 @@ All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**userControllerCreate**](#usercontrollercreate) | **POST** /api/user | |
 |[**userControllerFindAll**](#usercontrollerfindall) | **GET** /api/user | |
 |[**userControllerFindOne**](#usercontrollerfindone) | **GET** /api/user/{id} | |
 |[**userControllerMe**](#usercontrollerme) | **GET** /api/user/me | |
 |[**userControllerUpdate**](#usercontrollerupdate) | **PATCH** /api/user | |
-
-# **userControllerCreate**
-> userControllerCreate(body)
-
-
-### Example
-
-```typescript
-import {
-    UserApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new UserApi(configuration);
-
-let body: object; //
-
-const { status, data } = await apiInstance.userControllerCreate(
-    body
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **body** | **object**|  | |
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: Not defined
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**201** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+|[**userControllerUpdateStatus**](#usercontrollerupdatestatus) | **PATCH** /api/user/{id}/status | |
 
 # **userControllerFindAll**
-> userControllerFindAll()
+> UserControllerFindAll200Response userControllerFindAll()
 
 
 ### Example
@@ -84,7 +34,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**UserControllerFindAll200Response**
 
 ### Authorization
 
@@ -93,7 +43,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -104,7 +54,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerFindOne**
-> userControllerFindOne()
+> UserControllerMe200Response userControllerFindOne()
 
 
 ### Example
@@ -134,7 +84,7 @@ const { status, data } = await apiInstance.userControllerFindOne(
 
 ### Return type
 
-void (empty response body)
+**UserControllerMe200Response**
 
 ### Authorization
 
@@ -143,7 +93,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -154,7 +104,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerMe**
-> userControllerMe()
+> UserControllerMe200Response userControllerMe()
 
 
 ### Example
@@ -177,7 +127,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**UserControllerMe200Response**
 
 ### Authorization
 
@@ -186,7 +136,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -197,7 +147,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **userControllerUpdate**
-> userControllerUpdate(body)
+> UserControllerMe200Response userControllerUpdate(body)
 
 
 ### Example
@@ -227,7 +177,7 @@ const { status, data } = await apiInstance.userControllerUpdate(
 
 ### Return type
 
-void (empty response body)
+**UserControllerMe200Response**
 
 ### Authorization
 
@@ -236,7 +186,60 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **userControllerUpdateStatus**
+> UserControllerMe200Response userControllerUpdateStatus(body)
+
+
+### Example
+
+```typescript
+import {
+    UserApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new UserApi(configuration);
+
+let id: string; // (default to undefined)
+let body: object; //
+
+const { status, data } = await apiInstance.userControllerUpdateStatus(
+    id,
+    body
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **body** | **object**|  | |
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**UserControllerMe200Response**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
 
 
 ### HTTP response details

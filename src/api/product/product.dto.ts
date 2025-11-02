@@ -6,16 +6,16 @@ export interface CreateProductDTO {
   actualPrice: number;
   discountPrice: number;
   discountPercent: number;
-  categoryId: number;
+  categoryId: string;
   status: "active" | "inactive";
   tryOn: boolean;
   tags?: string[];
   images?: ProductImage[];
   thumbnail?: string;
+  variants?: string[ ];
 }
 
 export interface updateProductDTO {
-  id: string
   name?: string;
   description?: string;
   actualPrice?: number;

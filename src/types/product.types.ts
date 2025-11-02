@@ -6,7 +6,7 @@ export interface Product {
   variants: VariantDto[];
   discountPrice: number;
   discountPercent: number;
-  categoryId: number;
+  categoryId: string;
   status: "active" | "inactive";
   tryOn: boolean;
   tags?: string[];

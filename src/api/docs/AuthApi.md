@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost*
 |[**authControllerVerifyOtp**](#authcontrollerverifyotp) | **POST** /api/auth/login | Verify the OTP of the user.|
 
 # **authControllerAdminLogin**
-> authControllerAdminLogin(adminLoginDto)
+> AuthControllerRequestOtp200Response authControllerAdminLogin(adminLoginDto)
 
 
 ### Example
@@ -42,7 +42,7 @@ const { status, data } = await apiInstance.authControllerAdminLogin(
 
 ### Return type
 
-void (empty response body)
+**AuthControllerRequestOtp200Response**
 
 ### Authorization
 
@@ -51,13 +51,13 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | Admin logged in successfully |  -  |
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -148,7 +148,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **authControllerRequestOtp**
-> authControllerRequestOtp(loginRequestOTPDto)
+> AuthControllerRequestOtp200Response authControllerRequestOtp(loginRequestOTPDto)
 
 
 ### Example
@@ -179,7 +179,7 @@ const { status, data } = await apiInstance.authControllerRequestOtp(
 
 ### Return type
 
-void (empty response body)
+**AuthControllerRequestOtp200Response**
 
 ### Authorization
 
@@ -188,13 +188,13 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** | OTP has successfully sent. |  -  |
+|**200** | OTP has successfully sent. |  -  |
 |**400** | Validation failed |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
