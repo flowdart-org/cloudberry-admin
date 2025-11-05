@@ -2,9 +2,8 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  actualPrice: number;
+  price: number;
   variants: VariantDto[];
-  discountPrice: number;
   discountPercent: number;
   categoryId: string;
   status: "active" | "inactive";

@@ -16,8 +16,8 @@ interface ProductFormFieldsProps {
   formData: {
     name: string;
     description: string;
-    actualPrice: string;
-    discountPercent: string;
+    price: number;
+    discountPercent: number;
     categoryId: string;
     status: "active" | "inactive";
     tryOn: boolean;
@@ -135,13 +135,13 @@ export const ProductFormFields = ({
     setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
   };
 
-  const handlePriceChange = (value: string, field: "actualPrice" | "discountPercent") => {
-    // Only allow positive numbers and decimals
-    const numValue = parseFloat(value);
-    if (value === "" || (!isNaN(numValue) && numValue >= 0)) {
-      setFormData({ ...formData, [field]: value });
-    }
-  };
+  // const handlePriceChange = (value: string, field: "actualPrice" | "discountPercent") => {
+  //   // Only allow positive numbers and decimals
+  //   const numValue = parseFloat(value);
+  //   if (value === "" || (!isNaN(numValue) && numValue >= 0)) {
+  //     setFormData({ ...formData, [field]: value });
+  //   }
+  // };
 
   return (
     <div className="grid gap-4 py-4">
@@ -179,8 +179,8 @@ export const ProductFormFields = ({
             type="number"
             step="0.01"
             min="0"
-            value={formData.actualPrice}
-            onChange={(e) => handlePriceChange(e.target.value, "actualPrice")}
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             placeholder="0.00"
           />
         </div>
@@ -193,19 +193,19 @@ export const ProductFormFields = ({
             min="0"
             max="100"
             value={formData.discountPercent}
-            onChange={(e) => handlePriceChange(e.target.value, "discountPercent")}
+            onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
             placeholder="0"
           />
         </div>
       </div>
 
-      {formData.actualPrice && parseFloat(formData.actualPrice) > 0 && formData.discountPercent && parseFloat(formData.discountPercent) > 0 && (
+      {formData.price > 0 && formData.discountPercent > 0 && (
         <div className="rounded-md bg-muted p-3">
           <p className="text-sm font-medium">
-            Final Price: ${calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent)).toFixed(2)}
+            Final Price: ${calculateDiscountPrice(formData.price, formData.discountPercent).toFixed(2)}
           </p>
           <p className="text-xs text-muted-foreground">
-            Savings: ${(parseFloat(formData.actualPrice) - calculateDiscountPrice(parseFloat(formData.actualPrice), parseFloat(formData.discountPercent))).toFixed(2)} ({formData.discountPercent}% off)
+            Savings: ${(formData.price - calculateDiscountPrice(formData.price, formData.discountPercent)).toFixed(2)} ({formData.discountPercent}% off)
           </p>
         </div>
       )}

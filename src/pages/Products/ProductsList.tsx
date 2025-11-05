@@ -6,15 +6,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Plus, Search, Pencil, Trash2, Crop } from "lucide-react";
 import { toast } from "sonner";
-import { Product, VariantDto, ProductImage } from "@/types/product.types";
+import {  VariantDto, ProductImage, Product } from "@/types/product.types";
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
-import { CreateProductDTO, updateProductDTO } from "@/api/product/product.dto";
+import { updateProductDTO } from "@/api/product/product.dto";
 import { ProductFormFields } from "@/components/products/ProductFormFields";
 import { productApi } from "@/lib/axios";
 import { ProductForm } from "@/components/products/ProductForm";
 import { ProductImageUpload } from "@/components/products/ProductImageUpload";
+import { CreateProductDto } from "@/api/client";
 
 export default function ProductTable() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,23 +26,12 @@ export default function ProductTable() {
   const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [createdProductId, setCreatedProductId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<{
-    name: string;
-    description: string;
-    actualPrice: string;
-    discountPercent: string;
-    categoryId: string;
-    status: "active" | "inactive";
-    tryOn: boolean;
-    tags: string[];
-    variants: VariantDto[];
-    images: ProductImage[];
-    thumbnail: string;
-  }>({
+  const [formData, setFormData] = useState<Product>({
+    id: '',
     name: "",
     description: "",
-    actualPrice: "",
-    discountPercent: "",
+    price: 0,
+    discountPercent: 0,
     categoryId: "",
     status: "active",
     tryOn: false,
@@ -87,16 +77,9 @@ export default function ProductTable() {
     product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const calculateDiscountPrice = (actualPrice: number, discountPercent: number) => {
-    return actualPrice - (actualPrice * discountPercent / 100);
-  };
-
-  const getTotalStock = (variants: VariantDto[]) => {
-    return variants.reduce((sum, variant) => sum + variant.stock, 0);
-  };
 
   const handleAddProduct = async () => {
-    if (!formData.name || !formData.description || !formData.actualPrice || !formData.categoryId) {
+    if (!formData.name || !formData.description || !formData.price || !formData.categoryId) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -117,19 +100,16 @@ export default function ProductTable() {
     // }
 
     try {
-      const productData: CreateProductDTO = {
+      const productData: CreateProductDto = {
         name: formData.name,
         description: formData.description,
-        actualPrice: parseFloat(formData.actualPrice),
-        discountPercent: parseFloat(formData.discountPercent) || 0,
+        discountPercent: formData.discountPercent,
         categoryId: formData.categoryId,
         status: formData.status,
         tryOn: formData.tryOn,
         tags: formData.tags.length > 0 ? formData.tags : undefined,
-        images: formData.images,
         variants: [],
-        discountPrice: 100,
-        // thumbnail: formData.thumbnail,
+        price: formData.price,
       };
 
       // const response = await PRODUCT_SERVICES.addProduct(productData);
@@ -138,9 +118,9 @@ export default function ProductTable() {
 
       if (response.data) {
         // Update the product with variants
-        await PRODUCT_SERVICES.updateProducts(response.data.id!, {
-          variants: formData.variants,
-        });
+        // await PRODUCT_SERVICES.updateProducts(response.data.id!, {
+        //   variants: formData.variants,
+        // });
         await fetchProducts();
         setIsAddDialogOpen(false);
         resetForm();
@@ -153,7 +133,7 @@ export default function ProductTable() {
   };
 
   const handleEditProduct = async () => {
-    if (!currentProduct || !formData.name || !formData.description || !formData.actualPrice || !formData.categoryId) {
+    if (!currentProduct || !formData.name || !formData.description || !formData.price || !formData.categoryId) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -177,8 +157,8 @@ export default function ProductTable() {
       const updateData: updateProductDTO = {
         name: formData.name,
         description: formData.description,
-        actualPrice: parseFloat(formData.actualPrice),
-        discountPercent: parseFloat(formData.discountPercent) || 0,
+        actualPrice: formData.price,
+        discountPercent: formData.discountPercent,
         categoryId: parseInt(formData.categoryId),
         status: formData.status,
         tryOn: formData.tryOn,
@@ -188,7 +168,7 @@ export default function ProductTable() {
         thumbnail: formData.thumbnail,
       };
 
-      await PRODUCT_SERVICES.updateProducts(currentProduct.id!, updateData);
+      // await PRODUCT_SERVICES.updateProducts(currentProduct.id!, updateData);
       await fetchProducts();
       setIsEditDialogOpen(false);
       setCurrentProduct(null);
@@ -215,12 +195,14 @@ export default function ProductTable() {
   };
 
   const openEditDialog = (product: Product) => {
+    console.log(product)
     setCurrentProduct(product);
     setFormData({
+      id: product.id,
       name: product.name,
       description: product.description,
-      actualPrice: product.actualPrice.toString(),
-      discountPercent: product.discountPercent.toString(),
+      price: product.price,
+      discountPercent: product.discountPercent,
       categoryId: product.categoryId.toString(),
       status: product.status,
       tryOn: product.tryOn,
@@ -234,10 +216,11 @@ export default function ProductTable() {
 
   const resetForm = () => {
     setFormData({
+      id: '',
       name: "",
       description: "",
-      actualPrice: "",
-      discountPercent: "",
+      price: 0,
+      discountPercent: 0,
       categoryId: "",
       status: "active" as "active" | "inactive",
       tryOn: false,
@@ -413,14 +396,18 @@ export default function ProductTable() {
     }));
   };
 
-// test functionss
+  const handleSuccess = async (product: CreateProductDto) => {
+  const response = await PRODUCT_SERVICES.addProduct(product);
 
-const handleSuccess = (product: Product) => {
-    console.log("Product saved:", product);
-    if (product.id) {
-      setCreatedProductId(product.id);
+  if (response?.data) {
+    setFormData(response.data);
+    setProducts((prevProducts) => [...prevProducts, response.data]);
+    if (response.data.id) {
+      setCreatedProductId(response.data.id);
     }
-  };
+  }
+};
+
 
   const handleCancel = () => {
     console.log("Form cancelled");
@@ -469,7 +456,8 @@ const handleSuccess = (product: Product) => {
                   <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Product</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Category</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Price</th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Stock</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Discount</th>
+                  {/* <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Stock</th> */}
                   <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Actions</th>
                 </tr>
@@ -506,24 +494,26 @@ const handleSuccess = (product: Product) => {
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-foreground">Category #{product.categoryId}</td>
+                      <td className="px-6 py-4 text-foreground">{product?.category?.name}</td>
+
                       <td className="px-6 py-4">
                         <div className="flex flex-col">
                           <span className="font-medium text-foreground">
-                            ${product.discountPrice.toFixed(2)}
+                            {(product?.price / 100) * (100 - product?.discountPercentage)}
                           </span>
-                          {product.discountPercent > 0 && (
+                          {product.discountPercentage > 0 && (
                             <span className="text-xs text-muted-foreground line-through">
-                              ${product.actualPrice.toFixed(2)}
+                              {product.price}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-foreground">{product?.discountPercentage}%</td> 
+                      {/* <td className="px-6 py-4">
                         <span className={getTotalStock(product.variants) < 10 ? "font-medium text-destructive" : "text-foreground"}>
                           {getTotalStock(product.variants)}
                         </span>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4">
                         <Badge variant={product.status === "active" ? "default" : "secondary"}>
                           {product.status}
@@ -560,11 +550,11 @@ const handleSuccess = (product: Product) => {
 
       {/* Add Product Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
+          {/* <DialogHeader>
             <DialogTitle>Add Product</DialogTitle>
             <DialogDescription>Add a new product to your inventory</DialogDescription>
-          </DialogHeader>
+          </DialogHeader> */}
           {/* <ProductFormFields
             formData={formData}
             setFormData={setFormData}
@@ -576,19 +566,19 @@ const handleSuccess = (product: Product) => {
             calculateDiscountPrice={calculateDiscountPrice}
           /> */}
           {!createdProductId ? (
-        <ProductForm onSuccess={handleSuccess} onCancel={handleCancel} />
-      ) : (
-        <ProductImageUpload 
-          productId={createdProductId} 
-          onComplete={handleImageUploadComplete}
-        />
-      )}
-          <DialogFooter>
+            <ProductForm onSuccess={handleSuccess} onCancel={handleCancel} />
+          ) : (
+            <ProductImageUpload
+              productId={createdProductId}
+              onComplete={handleImageUploadComplete}
+            />
+          )}
+          {/* <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
               Cancel
             </Button>
             <Button onClick={handleAddProduct}>Add Product</Button>
-          </DialogFooter>
+          </DialogFooter> */}
         </DialogContent>
       </Dialog>
 
@@ -599,7 +589,7 @@ const handleSuccess = (product: Product) => {
             <DialogTitle>Edit Product</DialogTitle>
             <DialogDescription>Update product information</DialogDescription>
           </DialogHeader>
-          <ProductFormFields
+          {/* <ProductFormFields
             formData={formData}
             setFormData={setFormData}
             newTag={newTag}
@@ -608,8 +598,8 @@ const handleSuccess = (product: Product) => {
             setNewVariant={setNewVariant}
             categories={[]}
             calculateDiscountPrice={calculateDiscountPrice}
-          />
-          <DialogFooter>  
+          /> */}
+          <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>

@@ -2,7 +2,7 @@ import axios, { AxiosRequestConfig } from "axios";
 import { ENV } from "./env";
 import { ApiResponse } from "@/types/common";
 import { useAuthStore } from "@/store/authStore";
-import { AdminApi, AuthApi, CategoryApi, Configuration, MediaApi, ProductApi, UserApi } from "@/api";
+import { AdminApi, AuthApi, CategoryApi, Configuration, MediaApi, ProductApi, UserApi } from "@/api/client";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {

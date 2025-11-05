@@ -2,7 +2,7 @@
 import { adminApi, userApi } from "@/lib/axios";
 import { ApiResponse } from "@/types/common";
 import { AdminUser, ExtendedUser, User } from "@/types/user.types";
-import { UserApi } from "../api";
+import { UserApi } from "../client/api";
 
 
 export const USER_SERVICES = {

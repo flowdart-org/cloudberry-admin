@@ -59,8 +59,8 @@ export const ProductTable = ({ products, onDelete }: ProductTableProps) => {
                   </div>
                 </div>
               </TableCell>
-              <TableCell>Category #{product.categoryId}</TableCell>
-              <TableCell>{formatCurrency(product.discountPrice)}</TableCell>
+              <TableCell>{product.category.name}</TableCell>
+              <TableCell>{formatCurrency(product.price)}</TableCell>
               <TableCell>
                 <span
                   className={cn(

@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { Category } from "@/types/category.types";
+import { ApiResponse } from "@/types/common";
 
 interface ProductFormProps {
   initialData?: Product;
@@ -23,8 +24,8 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     description: initialData?.description || "",
-    actualPrice: initialData?.actualPrice?.toString() || "",
-    discountPercent: initialData?.discountPercent?.toString() || "",
+    price: initialData?.price || 0,
+    discountPercent: initialData?.discountPercent || 0,
     categoryId: initialData?.categoryId || "",
     status: (initialData?.status || "active") as "active" | "inactive",
     tryOn: initialData?.tryOn || false,
@@ -75,8 +76,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
       return false;
     }
 
-    const price = parseFloat(formData.actualPrice);
-    if (!formData.actualPrice || isNaN(price) || price <= 0) {
+    if (!formData.price || isNaN(formData.price ) || formData.price  <= 0) {
       toast({
         title: "Validation Error",
         description: "Please enter a valid price greater than 0.",
@@ -85,8 +85,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
       return false;
     }
 
-    const discount = parseFloat(formData.discountPercent || "0");
-    if (isNaN(discount) || discount < 0 || discount > 100) {
+    if (isNaN(formData.discountPercent) || formData.discountPercent < 0 || formData.discountPercent > 100) {
       toast({
         title: "Validation Error",
         description: "Discount must be between 0 and 100.",
@@ -118,8 +117,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSuccess({id: 'dummy id'} as Product)
-    return
+
     if (!validateForm()) {
       return;
     }
@@ -130,8 +128,8 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
       const productData: Omit<Product, "id" | "createdAt" | "updatedAt"> = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        actualPrice: parseFloat(formData.actualPrice),
-        discountPercent: parseFloat(formData.discountPercent || "0"),
+        price: Number(formData.price),
+        discountPercent: Number(formData.discountPercent),
         categoryId: formData.categoryId,
         status: formData.status,
         tryOn: formData.tryOn,
@@ -141,7 +139,8 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
         thumbnail: "",
       };
 
-      let result: Product;
+
+      let result: ApiResponse<Product>;
       
       if (initialData?.id) {
         // Update existing product
@@ -159,7 +158,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
         });
       }
 
-      onSuccess?.(result);
+      onSuccess?.(result.data);
     } catch (error) {
       toast({
         title: "Error",

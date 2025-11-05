@@ -1,11 +1,12 @@
 import { productApi, request } from "@/lib/axios";
 import { Product } from "@/types/product.types";
-import { CreateProductDTO, updateProductDTO } from "./product.dto";
+import { updateProductDTO } from "./product.dto";
 import { ApiResponse } from "@/types/common";
+import { CreateProductDto } from "../client/api";
 
 
 export const PRODUCT_SERVICES = {
-  addProduct: async (data: CreateProductDTO): Promise<ApiResponse<Product>> => {
+  addProduct: async (data: CreateProductDto): Promise<ApiResponse<Product>> => {
     const response: any = await productApi.productControllerCreate(data);
     return response.data;
   },

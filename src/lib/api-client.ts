@@ -1,5 +1,5 @@
-import { Configuration } from "@/api";
-import { AdminApi, AuthApi, ProductApi } from "@/api";
+import { Configuration } from "@/api/client";
+import { AdminApi, AuthApi, ProductApi } from "@/api/client";
 
 const basePath = process.env.VITE_PUBLIC_API_BASE_URL;
 
