@@ -43,9 +43,9 @@ const mockUser = {
   status: 'active' as const,
   createdAt: '2024-01-15T10:30:00Z',
   updatedAt: '2024-11-20T15:45:00Z',
-  totalOrders: 24,
-  totalSpent: 3456.78,
-  averageOrderValue: 144.03,
+  totalOrders: 0,
+  totalSpent: 0,
+  averageOrderValue: 0,
   lastOrderDate: '2024-11-18T09:20:00Z',
 };
 
@@ -58,30 +58,30 @@ const mockOrders = [
     status: 'delivered' as const,
     items: 3,
   },
-  {
-    id: '2',
-    orderNumber: '10180',
-    date: '2024-11-10T14:30:00Z',
-    total: 158.50,
-    status: 'delivered' as const,
-    items: 2,
-  },
-  {
-    id: '3',
-    orderNumber: '10125',
-    date: '2024-10-28T11:15:00Z',
-    total: 445.99,
-    status: 'delivered' as const,
-    items: 5,
-  },
+  // {
+  //   id: '2',
+  //   orderNumber: '10180',
+  //   date: '2024-11-10T14:30:00Z',
+  //   total: 158.50,
+  //   status: 'delivered' as const,
+  //   items: 2,
+  // },
+  // {
+  //   id: '3',
+  //   orderNumber: '10125',
+  //   date: '2024-10-28T11:15:00Z',
+  //   total: 445.99,
+  //   status: 'delivered' as const,
+  //   items: 5,
+  // },
 ];
 
 const mockActivity = [
   { id: '1', action: 'Order placed', details: 'Order #10234', timestamp: '2024-11-18T09:20:00Z' },
-  { id: '2', action: 'Profile updated', details: 'Changed phone number', timestamp: '2024-11-15T16:45:00Z' },
-  { id: '3', action: 'Order placed', details: 'Order #10180', timestamp: '2024-11-10T14:30:00Z' },
-  { id: '4', action: 'Password changed', details: 'Security update', timestamp: '2024-11-05T10:20:00Z' },
-  { id: '5', action: 'Order placed', details: 'Order #10125', timestamp: '2024-10-28T11:15:00Z' },
+  // { id: '2', action: 'Profile updated', details: 'Changed phone number', timestamp: '2024-11-15T16:45:00Z' },
+  // { id: '3', action: 'Order placed', details: 'Order #10180', timestamp: '2024-11-10T14:30:00Z' },
+  // { id: '4', action: 'Password changed', details: 'Security update', timestamp: '2024-11-05T10:20:00Z' },
+  // { id: '5', action: 'Order placed', details: 'Order #10125', timestamp: '2024-10-28T11:15:00Z' },
 ];
 
 const UserDetails = () => {

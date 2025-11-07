@@ -1,35 +1,35 @@
-# ProductApi
+# AuthApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productControllerCreate**](#productcontrollercreate) | **POST** /api/product | |
-|[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/product | |
-|[**productControllerFindFeed**](#productcontrollerfindfeed) | **GET** /api/product/feed | |
-|[**productControllerFindOne**](#productcontrollerfindone) | **GET** /api/product/{id} | |
-|[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/product/{id} | |
+|[**authControllerAdminLogin**](#authcontrolleradminlogin) | **POST** /api/auth/admin/login | Admin login with email and password.|
+|[**authControllerLogout**](#authcontrollerlogout) | **POST** /api/auth/logout | Logout user removes token from cookies.|
+|[**authControllerRefreshToken**](#authcontrollerrefreshtoken) | **POST** /api/auth/refresh-token | Refresh access and refresh tokens.|
+|[**authControllerRequestOtp**](#authcontrollerrequestotp) | **POST** /api/auth/login/request-otp | Request OTP for user.|
+|[**authControllerVerifyOtp**](#authcontrollerverifyotp) | **POST** /api/auth/login | Verify the OTP of the user.|
 
-# **productControllerCreate**
-> ProductControllerCreate200Response productControllerCreate(createProductDto)
+# **authControllerAdminLogin**
+> AuthControllerRequestOtp200Response authControllerAdminLogin(adminLoginDto)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    AuthApi,
     Configuration,
-    CreateProductDto
+    AdminLoginDto
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new AuthApi(configuration);
 
-let createProductDto: CreateProductDto; //
+let adminLoginDto: AdminLoginDto; //
 
-const { status, data } = await apiInstance.productControllerCreate(
-    createProductDto
+const { status, data } = await apiInstance.authControllerAdminLogin(
+    adminLoginDto
 );
 ```
 
@@ -37,12 +37,12 @@ const { status, data } = await apiInstance.productControllerCreate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **createProductDto** | **CreateProductDto**|  | |
+| **adminLoginDto** | **AdminLoginDto**|  | |
 
 
 ### Return type
 
-**ProductControllerCreate200Response**
+**AuthControllerRequestOtp200Response**
 
 ### Authorization
 
@@ -61,22 +61,22 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindAll**
-> ProductControllerFindAll200Response productControllerFindAll()
+# **authControllerLogout**
+> authControllerLogout()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    AuthApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new AuthApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindAll();
+const { status, data } = await apiInstance.authControllerLogout();
 ```
 
 ### Parameters
@@ -85,7 +85,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -94,32 +94,32 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | User logged out successfully |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindFeed**
-> ProductControllerFindAll200Response productControllerFindFeed()
+# **authControllerRefreshToken**
+> authControllerRefreshToken()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    AuthApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new AuthApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindFeed();
+const { status, data } = await apiInstance.authControllerRefreshToken();
 ```
 
 ### Parameters
@@ -128,7 +128,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -137,88 +137,36 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | Tokens refreshed successfully |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindOne**
-> ProductControllerCreate200Response productControllerFindOne()
+# **authControllerRequestOtp**
+> AuthControllerRequestOtp200Response authControllerRequestOtp(loginRequestOTPDto)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
-
-let id: string; // (default to undefined)
-
-const { status, data } = await apiInstance.productControllerFindOne(
-    id
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**ProductControllerCreate200Response**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** |  |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **productControllerUpdate**
-> ProductControllerCreate200Response productControllerUpdate(updateProductDto)
-
-
-### Example
-
-```typescript
-import {
-    ProductApi,
+    AuthApi,
     Configuration,
-    UpdateProductDto
+    LoginRequestOTPDto
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new AuthApi(configuration);
 
-let id: string; // (default to undefined)
-let updateProductDto: UpdateProductDto; //
+let loginRequestOTPDto: LoginRequestOTPDto; //
 
-const { status, data } = await apiInstance.productControllerUpdate(
-    id,
-    updateProductDto
+const { status, data } = await apiInstance.authControllerRequestOtp(
+    loginRequestOTPDto
 );
 ```
 
@@ -226,13 +174,12 @@ const { status, data } = await apiInstance.productControllerUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **updateProductDto** | **UpdateProductDto**|  | |
-| **id** | [**string**] |  | defaults to undefined|
+| **loginRequestOTPDto** | **LoginRequestOTPDto**|  | |
 
 
 ### Return type
 
-**ProductControllerCreate200Response**
+**AuthControllerRequestOtp200Response**
 
 ### Authorization
 
@@ -247,7 +194,59 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**200** | OTP has successfully sent. |  -  |
+|**400** | Validation failed |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **authControllerVerifyOtp**
+> authControllerVerifyOtp(loginVerifyOTPDto)
+
+
+### Example
+
+```typescript
+import {
+    AuthApi,
+    Configuration,
+    LoginVerifyOTPDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AuthApi(configuration);
+
+let loginVerifyOTPDto: LoginVerifyOTPDto; //
+
+const { status, data } = await apiInstance.authControllerVerifyOtp(
+    loginVerifyOTPDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **loginVerifyOTPDto** | **LoginVerifyOTPDto**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: Not defined
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OTP verified |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -21,7 +21,7 @@ export interface updateProductDTO {
   actualPrice?: number;
   discountPrice?: number;
   discountPercent?: number;
-  categoryId?: number;
+  categoryId?: string;
   status?: "active" | "inactive";
   tryOn?: boolean;
   tags?: string[];

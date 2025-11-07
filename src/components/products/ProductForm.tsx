@@ -3,12 +3,11 @@ import { ProductFormFields } from "./ProductFormFields";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Product, VariantDto } from "@/types/product.types";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { Category } from "@/types/category.types";
-import { ApiResponse } from "@/types/common";
 
 interface ProductFormProps {
   initialData?: Product;
@@ -17,7 +16,6 @@ interface ProductFormProps {
 }
 
 export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormProps) => {
-  const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
@@ -26,7 +24,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
     description: initialData?.description || "",
     price: initialData?.price || 0,
     discountPercent: initialData?.discountPercent || 0,
-    categoryId: initialData?.categoryId || "",
+    categoryId: initialData?.categoryId?.toString() || "",
     status: (initialData?.status || "active") as "active" | "inactive",
     tryOn: initialData?.tryOn || false,
     tags: initialData?.tags || [],
@@ -42,15 +40,11 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
         const response = await CATEGORY_SERVICES.getCategories();
         setCategories(response.data);
       } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to load categories",
-          variant: "destructive",
-        });
+        toast.error("Failed to load categories");
       }
     };
     loadCategories();
-  }, [toast]);
+  }, []);
 
   const calculateDiscountPrice = (actualPrice: number, discountPercent: number): number => {
     if (discountPercent < 0 || discountPercent > 100) return actualPrice;
@@ -59,56 +53,32 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
 
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Product name is required.",
-        variant: "destructive",
-      });
+      toast.error("Product name is required");
       return false;
     }
 
     if (!formData.description.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Product description is required.",
-        variant: "destructive",
-      });
+      toast.error("Product description is required");
       return false;
     }
 
-    if (!formData.price || isNaN(formData.price ) || formData.price  <= 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid price greater than 0.",
-        variant: "destructive",
-      });
+    if (!formData.price || isNaN(formData.price) || formData.price <= 0) {
+      toast.error("Please enter a valid price greater than 0");
       return false;
     }
 
     if (isNaN(formData.discountPercent) || formData.discountPercent < 0 || formData.discountPercent > 100) {
-      toast({
-        title: "Validation Error",
-        description: "Discount must be between 0 and 100.",
-        variant: "destructive",
-      });
+      toast.error("Discount must be between 0 and 100");
       return false;
     }
 
     if (!formData.categoryId) {
-      toast({
-        title: "Validation Error",
-        description: "Please select a category.",
-        variant: "destructive",
-      });
+      toast.error("Please select a category");
       return false;
     }
 
     if (formData.variants.length === 0) {
-      toast({
-        title: "Validation Error",
-        description: "Please add at least one variant.",
-        variant: "destructive",
-      });
+      toast.error("Please add at least one variant");
       return false;
     }
 
@@ -125,7 +95,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
     setIsSubmitting(true);
 
     try {
-      const productData: Omit<Product, "id" | "createdAt" | "updatedAt"> = {
+      const productData: Partial<Product> = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: Number(formData.price),
@@ -135,36 +105,25 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
         tryOn: formData.tryOn,
         tags: formData.tags,
         variants: formData.variants,
-        images: [],
-        thumbnail: "",
+        images: initialData?.images || [],
+        thumbnail: initialData?.thumbnail || "",
       };
 
+      let result;
 
-      let result: ApiResponse<Product>;
-      
       if (initialData?.id) {
         // Update existing product
         result = await PRODUCT_SERVICES.updateProduct(initialData.id, productData);
-        toast({
-          title: "Success",
-          description: "Product updated successfully!",
-        });
+        toast.success("Product updated successfully");
       } else {
         // Create new product
-        result = await PRODUCT_SERVICES.addProduct(productData);
-        toast({
-          title: "Success",
-          description: "Product created successfully!",
-        });
+        result = await PRODUCT_SERVICES.addProduct(productData as Omit<Product, "id">);
+        toast.success("Product created successfully");
       }
 
       onSuccess?.(result.data);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: `Failed to ${initialData ? "update" : "create"} product. Please try again.`,
-        variant: "destructive",
-      });
+      toast.error(`Failed to ${initialData ? "update" : "create"} product`);
       console.error("Product submission error:", error);
     } finally {
       setIsSubmitting(false);
@@ -172,12 +131,12 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full border-0 shadow-none">
       <CardHeader>
         <CardTitle>{initialData ? "Edit Product" : "Create New Product"}</CardTitle>
         <CardDescription>
-          {initialData 
-            ? "Update product information and save changes." 
+          {initialData
+            ? "Update product information and save changes."
             : "Fill in the details to add a new product to your inventory."}
         </CardDescription>
       </CardHeader>

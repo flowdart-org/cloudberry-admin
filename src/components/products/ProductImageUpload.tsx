@@ -1,234 +1,279 @@
 import { useState, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Check, Loader2 } from "lucide-react";
-import { ProductImage } from "@/types/product.types";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Upload, X, Crop } from "lucide-react";
+import { toast } from "sonner";
+import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 import { MEDIA_SERVICES } from "@/api/media/media.service";
 
 interface ProductImageUploadProps {
   productId: string;
-  onComplete?: () => void;
+  onComplete: () => void;
+  existingImages?: string[];
 }
 
-export const ProductImageUpload = ({ productId, onComplete }: ProductImageUploadProps) => {
-  const { toast } = useToast();
-  const [images, setImages] = useState<ProductImage[]>([]);
-  const [thumbnailId, setThumbnailId] = useState<string>("");
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export const ProductImageUpload = ({ productId, onComplete, existingImages = [] }: ProductImageUploadProps) => {
+  const [images, setImages] = useState<string[]>(existingImages);
+  const [uploading, setUploading] = useState(false);
+  const [isCropDialogOpen, setIsCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentSlotIndex, setCurrentSlotIndex] = useState<number>(0);
+  const [crop, setCrop] = useState<CropType>({
+    unit: '%',
+    width: 75,
+    height: 100,
+    x: 12.5,
+    y: 0,
+  });
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const MAX_IMAGES = 5;
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, slotIndex: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: `${file.name} exceeds 10MB limit.`,
-        variant: "destructive",
-      });
-      return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImageToCrop(reader.result as string);
+      setSelectedFile(file);
+      setCurrentSlotIndex(slotIndex);
+      setIsCropDialogOpen(true);
+    };
+    reader.readAsDataURL(file);
+
+    e.target.value = "";
+  };
+
+   
+
+  const onImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const width = 60; // 60% width crop
+
+    setCrop({
+      unit: "%",
+      width,
+      aspect: 3 / 4,
+      x: (100 - width) / 2,
+      y: 10,
+    });
+  };
+
+
+  const getCroppedImg = async (image: HTMLImageElement, pixelCrop: PixelCrop): Promise<Blob | null> => {
+    const canvas = document.createElement('canvas');
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('No 2d context');
     }
 
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: `${file.name} is not an image.`,
-        variant: "destructive",
-      });
-      return;
-    }
+    ctx.drawImage(
+      image,
+      pixelCrop.x * scaleX,
+      pixelCrop.y * scaleY,
+      pixelCrop.width * scaleX,
+      pixelCrop.height * scaleY,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
 
-    setIsUploading(true);
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/jpeg', 0.95);
+    });
+  };
+
+  const handleCropConfirm = async () => {
+    if (!imgRef.current || !completedCrop || !selectedFile) return;
+
 
     try {
-    //   const uploadUrlResponse = await MEDIA_SERVICES.getProductUploadUrl(productId, file);
-    //   const uploadUrl = uploadUrlResponse.data;
-      
-    //   await MEDIA_SERVICES.uploadImage(uploadUrl, file);
+      setUploading(true);
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        const newImage: ProductImage = {
-          id: Math.random().toString(36).substr(2, 9),
-          url: reader.result as string,
-          alt: file.name,
-        };
+      const croppedBlob = await getCroppedImg(imgRef.current, completedCrop);
+      if (!croppedBlob) throw new Error("Failed to crop image");
 
-        setImages((prev) => {
-          const updatedImages = [...prev, newImage];
-          // Set as thumbnail if it's the first image
-          if (updatedImages.length === 1) {
-            setThumbnailId(newImage.id);
-          }
-          return updatedImages;
-        });
+      const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
-        toast({
-          title: "Success",
-          description: "Image uploaded successfully",
-        });
-      };
-      reader.readAsDataURL(file);
+      const response =  currentSlotIndex === 0 ?  await MEDIA_SERVICES.getProductThumbnailUploadUrl(productId, croppedFile) : await MEDIA_SERVICES.getProductUploadUrl(productId, currentSlotIndex, croppedFile);
+      if (!response.data) throw new Error("Failed to get upload URL");
+
+      await MEDIA_SERVICES.uploadImage(response.data, croppedFile);
+
+
+      setImages((prev) => {
+        const updated = [...prev];
+        updated[currentSlotIndex] = response.data;
+        return updated;
+      });
+
+      toast.success("Image uploaded successfully");
+
+      setIsCropDialogOpen(false);
+      setImageToCrop("");
+      setCompletedCrop(null);
+      setSelectedFile(null);
     } catch (error) {
       console.error("Upload error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
+      toast.error("Failed to upload image");
     } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      setUploading(false);
     }
   };
 
-  const handleRemoveImage = async (imageId: string) => {
-    try {
-    //   await MEDIA_SERVICES.deleteProductImage(productId, imageId);
-      
-      setImages((prev) => {
-        const updatedImages = prev.filter((img) => img.id !== imageId);
-        
-        // If removed image was thumbnail, set new thumbnail
-        if (imageId === thumbnailId && updatedImages.length > 0) {
-          setThumbnailId(updatedImages[0].id);
-        } else if (updatedImages.length === 0) {
-          setThumbnailId("");
-        }
-        
-        return updatedImages;
-      });
-
-      toast({
-        title: "Success",
-        description: "Image removed successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to remove image",
-        variant: "destructive",
-      });
-    }
+  const removeImage = (slotIndex: number) => {
+    setImages((prev) => {
+      const updated = [...prev];
+      updated[slotIndex] = undefined as any;
+      return updated.filter(Boolean);
+    });
+    toast.success("Image removed");
   };
 
-  const handleSetThumbnail = async (imageId: string) => {
-    try {
-    //   await MEDIA_SERVICES.setProductThumbnail(productId, imageId);
-      setThumbnailId(imageId);
-      
-      toast({
-        title: "Success",
-        description: "Thumbnail set successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to set thumbnail",
-        variant: "destructive",
-      });
+  const handleSave = () => {
+    const validImages = images.filter(Boolean);
+    if (validImages.length === 0) {
+      toast.error("Please upload at least one image (thumbnail)");
+      return;
     }
+    // Here you would typically save images to the product via API
+    toast.success("Images saved successfully");
+    onComplete();
+  };
+
+  const renderImageSlot = (slotIndex: number) => {
+    const image = images[slotIndex];
+    const isThumb = slotIndex === 0;
+
+    return (
+      <div key={slotIndex} className="relative aspect-[3/4] border-2 border-dashed rounded-lg overflow-hidden">
+        {image ? (
+          <>
+            <img src={image} alt={`Product ${slotIndex + 1}`} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Button
+                type="button"
+                size="icon"
+                variant="destructive"
+                onClick={() => removeImage(slotIndex)}
+                className="h-8 w-8"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {isThumb && (
+              <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                Thumbnail
+              </div>
+            )}
+          </>
+        ) : (
+          <div
+            onClick={() => document.getElementById(`file-input-${slotIndex}`)?.click()}
+            className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors"
+          >
+            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-xs text-muted-foreground text-center px-2">
+              {isThumb ? "Upload Thumbnail" : `Image ${slotIndex + 1}`}
+            </p>
+            <input
+              id={`file-input-${slotIndex}`}
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileSelect(e, slotIndex)}
+              className="hidden"
+            />
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>Upload Product Images</CardTitle>
-        <CardDescription>
-          Add images for your product. The first image will be set as thumbnail by default.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-8 hover:border-primary transition-colors">
-          <Upload className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-sm text-muted-foreground mb-4">
-            Click to upload product images (Max 10MB per image)
-          </p>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            disabled={isUploading}
-            className="hidden"
-            id="image-upload"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-          >
-            {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isUploading ? "Uploading..." : "Select Image"}
-          </Button>
-        </div>
-
-        {images.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">Uploaded Images ({images.length})</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {images.map((image) => (
-                <div key={image.id} className="relative group">
-                  <AspectRatio ratio={1}>
-                    <img
-                      src={image.url}
-                      alt={image.alt || "Product image"}
-                      className="rounded-lg object-cover w-full h-full"
-                    />
-                  </AspectRatio>
-                  
-                  {thumbnailId === image.id && (
-                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-1 rounded text-xs font-medium">
-                      Thumbnail
-                    </div>
-                  )}
-
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {thumbnailId !== image.id && (
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="secondary"
-                        className="h-8 w-8"
-                        onClick={() => handleSetThumbnail(image.id)}
-                        title="Set as thumbnail"
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="destructive"
-                      className="h-8 w-8"
-                      onClick={() => handleRemoveImage(image.id)}
-                      title="Remove image"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+    <>
+      <Card className="border-0 shadow-none">
+        <CardHeader>
+          <CardTitle>Product Images</CardTitle>
+          <CardDescription>
+            Upload up to 5 images. The first image will be used as the thumbnail.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-5 gap-3 group">
+            {[0, 1, 2, 3, 4].map((index) => renderImageSlot(index))}
           </div>
-        )}
 
-        <div className="flex justify-end gap-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onComplete}
-          >
-            Done
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex gap-3 justify-end">
+            <Button type="button" variant="outline" onClick={onComplete}>
+              Skip
+            </Button>
+            <Button onClick={handleSave} disabled={uploading}>
+              Save Images
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Crop Dialog */}
+      <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Crop Image to 3:4 Ratio</DialogTitle>
+            <DialogDescription>
+              Adjust the crop area to select the portion of the image you want to use
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {imageToCrop && (
+              <div className="flex justify-center">
+                <ReactCrop
+                  crop={crop}
+                  onChange={(c) => setCrop(c)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={3 / 4}
+                  className="max-h-[500px]"
+                >
+                  <img
+                    ref={imgRef}
+                    src={imageToCrop}
+                    alt="Crop preview"
+                    onLoad={onImageLoad}
+                    className="max-h-[500px]"
+                  />
+                </ReactCrop>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCropDialogOpen(false)} disabled={uploading}>
+              Cancel
+            </Button>
+            <Button onClick={handleCropConfirm} disabled={uploading}>
+              {uploading ? (
+                <>Uploading...</>
+              ) : (
+                <>
+                  <Crop className="mr-2 h-4 w-4" />
+                  Crop & Upload
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };

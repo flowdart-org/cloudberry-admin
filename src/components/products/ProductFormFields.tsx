@@ -3,33 +3,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Loader2 } from "lucide-react";
-import { VariantDto } from "@/types/product.types";
-import { useEffect, useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Plus, X } from "lucide-react";
 import { Category } from "@/types/category.types";
-import { CATEGORY_SERVICES } from "@/api/category/category.service";
+import { ProductDetails, VariantDto } from "@/types/product.types";
 
 interface ProductFormFieldsProps {
-  formData: {
-    name: string;
-    description: string;
-    price: number;
-    discountPercent: number;
-    categoryId: string;
-    status: "active" | "inactive";
-    tryOn: boolean;
-    tags: string[];
-    variants: VariantDto[];
-  };
+  formData: ProductDetails;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   newTag: string;
   setNewTag: React.Dispatch<React.SetStateAction<string>>;
   newVariant: VariantDto;
   setNewVariant: React.Dispatch<React.SetStateAction<VariantDto>>;
-  calculateDiscountPrice: (actualPrice: number, discountPercent: number) => number;
+  calculateDiscountPrice: (price: number, discount: number) => number;
   categories: Category[];
 }
 
@@ -41,52 +28,15 @@ export const ProductFormFields = ({
   newVariant,
   setNewVariant,
   calculateDiscountPrice,
-  categories: categoriesProp,
+  categories,
 }: ProductFormFieldsProps) => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (categoriesProp && categoriesProp.length > 0) {
-      setCategories(categoriesProp);
-      setLoadingCategories(false);
-    } else {
-      loadCategories();
-    }
-  }, [categoriesProp]);
-
-  const loadCategories = async () => {
-    try {
-      setLoadingCategories(true);
-      const fetchedCategories = await CATEGORY_SERVICES.getCategories();
-      setCategories(fetchedCategories.data);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load categories. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
+  if(!formData) return <p>no form data</p>
+  console.log(formData, 'asdf')
   const addTag = () => {
-    const trimmedTag = newTag.trim();
-    if (!trimmedTag) {
-      return;
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
+      setNewTag("");
     }
-    if (formData.tags.includes(trimmedTag)) {
-      toast({
-        title: "Duplicate Tag",
-        description: "This tag already exists.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setFormData({ ...formData, tags: [...formData.tags, trimmedTag] });
-    setNewTag("");
   };
 
   const removeTag = (tag: string) => {
@@ -94,244 +44,229 @@ export const ProductFormFields = ({
   };
 
   const addVariant = () => {
-    const trimmedSize = newVariant.size.trim();
-    
-    if (!trimmedSize) {
-      toast({
-        title: "Invalid Variant",
-        description: "Size cannot be empty.",
-        variant: "destructive",
-      });
-      return;
+    if (newVariant.size.trim() && newVariant.stock >= 0) {
+      setFormData({ ...formData, variants: [...formData.variants, { ...newVariant }] });
+      setNewVariant({ size: "", stock: 0 });
     }
-
-    if (newVariant.stock < 0) {
-      toast({
-        title: "Invalid Stock",
-        description: "Stock cannot be negative.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Check for duplicate size
-    if (formData.variants.some((v) => v.size.toLowerCase() === trimmedSize.toLowerCase())) {
-      toast({
-        title: "Duplicate Variant",
-        description: "A variant with this size already exists.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setFormData({ 
-      ...formData, 
-      variants: [...formData.variants, { size: trimmedSize, stock: newVariant.stock }] 
-    });
-    setNewVariant({ size: "", stock: 0 });
   };
 
   const removeVariant = (index: number) => {
     setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
   };
 
-  // const handlePriceChange = (value: string, field: "actualPrice" | "discountPercent") => {
-  //   // Only allow positive numbers and decimals
-  //   const numValue = parseFloat(value);
-  //   if (value === "" || (!isNaN(numValue) && numValue >= 0)) {
-  //     setFormData({ ...formData, [field]: value });
-  //   }
-  // };
-
   return (
-    <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="name">Product Name *</Label>
-        <Input
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Enter product name"
-          maxLength={200}
-        />
-      </div>
+    <div className="space-y-6">
+      {/* Basic Information */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
 
-      <div className="grid gap-2">
-        <Label htmlFor="description">Description *</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Enter product description"
-          rows={3}
-          maxLength={1000}
-        />
-        <p className="text-xs text-muted-foreground text-right">
-          {formData.description.length}/1000
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="actualPrice">Actual Price *</Label>
+        <div className="space-y-2">
+          <Label htmlFor="name">Product Name *</Label>
           <Input
-            id="actualPrice"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            placeholder="0.00"
+            id="name"
+            placeholder="Enter product name"
+            value={formData?.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            required
           />
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="discountPercent">Discount %</Label>
-          <Input
-            id="discountPercent"
-            type="number"
-            step="1"
-            min="0"
-            max="100"
-            value={formData.discountPercent}
-            onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
-            placeholder="0"
+
+        <div className="space-y-2">
+          <Label htmlFor="description">Description *</Label>
+          <Textarea
+            id="description"
+            placeholder="Enter product description"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            rows={4}
+            required
           />
         </div>
       </div>
 
-      {formData.price > 0 && formData.discountPercent > 0 && (
-        <div className="rounded-md bg-muted p-3">
-          <p className="text-sm font-medium">
-            Final Price: ${calculateDiscountPrice(formData.price, formData.discountPercent).toFixed(2)}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Savings: ${(formData.price - calculateDiscountPrice(formData.price, formData.discountPercent)).toFixed(2)} ({formData.discountPercent}% off)
-          </p>
-        </div>
-      )}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Pricing</h3>
 
-      <div className="grid gap-2">
-        <Label htmlFor="categoryId">Category *</Label>
-        {loadingCategories ? (
-          <div className="flex items-center justify-center p-4 border rounded-md">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            <span className="ml-2 text-sm text-muted-foreground">Loading categories...</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="price">Price ($) *</Label>
+            <Input
+              id="price"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={formData.price}
+              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+              required
+            />
           </div>
-        ) : (
-          <Select 
-            value={formData.categoryId} 
-            onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          <div className="space-y-2">
+            <Label htmlFor="discount">Discount (%)</Label>
+            <Input
+              id="discount"
+              type="number"
+              min="0"
+              max="100"
+              placeholder="0"
+              value={formData.discountPercent}
+              onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
+            />
+          </div>
+        </div>
+
+        {formData.discountPercent > 0 && (
+          <div className="rounded-lg bg-muted p-3">
+            <p className="text-sm text-muted-foreground">
+              Final Price:{" "}
+              <span className="font-semibold text-foreground">
+                ${calculateDiscountPrice(formData.price, formData.discountPercent).toFixed(2)}
+              </span>
+            </p>
+          </div>
         )}
       </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="status">Status</Label>
-        <Select value={formData.status} onValueChange={(value: "active" | "inactive") => setFormData({ ...formData, status: value })}>
-          <SelectTrigger>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Category & Status</h3>
 
-      <div className="flex items-center justify-between rounded-md border border-border p-3">
-        <Label htmlFor="tryOn" className="cursor-pointer">Virtual Try-On</Label>
-        <Switch
-          id="tryOn"
-          checked={formData.tryOn}
-          onCheckedChange={(checked) => setFormData({ ...formData, tryOn: checked })}
-        />
-      </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="category">Category *</Label>
+            <Select
+              value={formData?.category?.name}
+              onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
+            >
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      <div className="grid gap-2">
-        <Label>Tags</Label>
+          <div className="space-y-2">
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value: "active" | "inactive") => setFormData({ ...formData, status: value })}
+            >
+              <SelectTrigger id="status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="tryOn"
+            checked={formData.tryOn}
+            onCheckedChange={(checked) => setFormData({ ...formData, tryOn: checked })}
+          />
+          <Label htmlFor="tryOn">Enable Virtual Try-On</Label>
+        </div>
+      </div>
+    
+    <div className="space-y-4">
+        {/* <h3 className="text-lg font-semibold">Tags</h3>
+        
         <div className="flex gap-2">
           <Input
+            placeholder="Add a tag"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addTag();
-              }
-            }}
-            placeholder="Add a tag"
-            maxLength={50}
+            onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
           />
-          <Button type="button" onClick={addTag} variant="outline">
-            Add
+          <Button type="button" onClick={addTag} size="icon" variant="outline">
+            <Plus className="h-4 w-4" />
           </Button>
-        </div>
-        {formData.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2">
-            {formData.tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="gap-1">
+        </div> */}
+
+        {formData?.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {formData.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="gap-1">
                 {tag}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => removeTag(tag)} />
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="ml-1 hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </Badge>
             ))}
           </div>
         )}
-      </div>
+      </div> 
 
-      <div className="grid gap-2">
-        <Label>Variants (Size & Stock) *</Label>
+       <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Variants *</h3>
+
         <div className="flex gap-2">
           <Input
+            placeholder="Size (e.g., S, M, L)"
             value={newVariant.size}
             onChange={(e) => setNewVariant({ ...newVariant, size: e.target.value })}
-            placeholder="Size (e.g., S, M, L)"
             className="flex-1"
-            maxLength={20}
           />
           <Input
             type="number"
             min="0"
+            placeholder="Stock"
             value={newVariant.stock}
             onChange={(e) => setNewVariant({ ...newVariant, stock: parseInt(e.target.value) || 0 })}
-            placeholder="Stock"
             className="w-32"
           />
-          <Button type="button" onClick={addVariant} variant="outline">
-            Add
+          <Button type="button" onClick={addVariant} size="icon" variant="outline">
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
+
         {formData.variants.length > 0 && (
-          <div className="mt-2 space-y-2">
+          <div className="space-y-2">
             {formData.variants.map((variant, index) => (
-              <div key={index} className="flex items-center justify-between rounded-md border border-border p-3">
-                <span className="text-sm">
-                  Size: <strong>{variant.size}</strong> - Stock: <strong>{variant.stock}</strong>
-                </span>
+              <div key={index} className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <span className="font-medium">{variant.size}</span>
+                  <span className="ml-4 text-sm text-muted-foreground">Stock: {variant.stock}</span>
+                </div>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
+                  size="icon"
                   onClick={() => removeVariant(index)}
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8"
                 >
-                  <X className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </div> 
     </div>
   );
 };
+
+const Trash2 = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);

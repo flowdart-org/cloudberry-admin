@@ -1,35 +1,34 @@
-# ProductApi
+# CartApi
 
 All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**productControllerCreate**](#productcontrollercreate) | **POST** /api/product | |
-|[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/product | |
-|[**productControllerFindFeed**](#productcontrollerfindfeed) | **GET** /api/product/feed | |
-|[**productControllerFindOne**](#productcontrollerfindone) | **GET** /api/product/{id} | |
-|[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/product/{id} | |
+|[**cartControllerAddToCart**](#cartcontrolleraddtocart) | **POST** /api/cart/add | |
+|[**cartControllerClearCart**](#cartcontrollerclearcart) | **DELETE** /api/cart | |
+|[**cartControllerGetUserCart**](#cartcontrollergetusercart) | **GET** /api/cart | |
+|[**cartControllerRemoveItem**](#cartcontrollerremoveitem) | **DELETE** /api/cart/{itemId} | |
+|[**cartControllerUpdateQuantity**](#cartcontrollerupdatequantity) | **PATCH** /api/cart/{itemId} | |
 
-# **productControllerCreate**
-> ProductControllerCreate200Response productControllerCreate(createProductDto)
+# **cartControllerAddToCart**
+> cartControllerAddToCart(body)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
-    Configuration,
-    CreateProductDto
+    CartApi,
+    Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new CartApi(configuration);
 
-let createProductDto: CreateProductDto; //
+let body: object; //
 
-const { status, data } = await apiInstance.productControllerCreate(
-    createProductDto
+const { status, data } = await apiInstance.cartControllerAddToCart(
+    body
 );
 ```
 
@@ -37,12 +36,12 @@ const { status, data } = await apiInstance.productControllerCreate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **createProductDto** | **CreateProductDto**|  | |
+| **body** | **object**|  | |
 
 
 ### Return type
 
-**ProductControllerCreate200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -51,32 +50,32 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**201** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindAll**
-> ProductControllerFindAll200Response productControllerFindAll()
+# **cartControllerClearCart**
+> cartControllerClearCart()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    CartApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new CartApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindAll();
+const { status, data } = await apiInstance.cartControllerClearCart();
 ```
 
 ### Parameters
@@ -85,7 +84,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -94,7 +93,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
@@ -104,22 +103,22 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindFeed**
-> ProductControllerFindAll200Response productControllerFindFeed()
+# **cartControllerGetUserCart**
+> cartControllerGetUserCart()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    CartApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new CartApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindFeed();
+const { status, data } = await apiInstance.cartControllerGetUserCart();
 ```
 
 ### Parameters
@@ -128,7 +127,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -137,7 +136,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
@@ -147,25 +146,25 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindOne**
-> ProductControllerCreate200Response productControllerFindOne()
+# **cartControllerRemoveItem**
+> cartControllerRemoveItem()
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
+    CartApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new CartApi(configuration);
 
-let id: string; // (default to undefined)
+let itemId: string; // (default to undefined)
 
-const { status, data } = await apiInstance.productControllerFindOne(
-    id
+const { status, data } = await apiInstance.cartControllerRemoveItem(
+    itemId
 );
 ```
 
@@ -173,12 +172,12 @@ const { status, data } = await apiInstance.productControllerFindOne(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **id** | [**string**] |  | defaults to undefined|
+| **itemId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
 
-**ProductControllerCreate200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -187,7 +186,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
@@ -197,28 +196,27 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerUpdate**
-> ProductControllerCreate200Response productControllerUpdate(updateProductDto)
+# **cartControllerUpdateQuantity**
+> cartControllerUpdateQuantity(body)
 
 
 ### Example
 
 ```typescript
 import {
-    ProductApi,
-    Configuration,
-    UpdateProductDto
+    CartApi,
+    Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new ProductApi(configuration);
+const apiInstance = new CartApi(configuration);
 
-let id: string; // (default to undefined)
-let updateProductDto: UpdateProductDto; //
+let itemId: string; // (default to undefined)
+let body: object; //
 
-const { status, data } = await apiInstance.productControllerUpdate(
-    id,
-    updateProductDto
+const { status, data } = await apiInstance.cartControllerUpdateQuantity(
+    itemId,
+    body
 );
 ```
 
@@ -226,13 +224,13 @@ const { status, data } = await apiInstance.productControllerUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **updateProductDto** | **UpdateProductDto**|  | |
-| **id** | [**string**] |  | defaults to undefined|
+| **body** | **object**|  | |
+| **itemId** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
 
-**ProductControllerCreate200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -241,7 +239,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details

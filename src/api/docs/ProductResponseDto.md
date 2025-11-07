@@ -10,13 +10,11 @@ Name | Type | Description | Notes
 **description** | **string** | Description of the product | [default to undefined]
 **price** | **number** | Actual price of the product | [default to undefined]
 **discountPrice** | **number** | Discounted price of the product | [optional] [default to undefined]
-**discountPercent** | **number** | Discount percentage of the product | [optional] [default to undefined]
-**thumbnail** | **string** | Discount percentage of the product | [optional] [default to undefined]
+**discountPercentage** | **number** | Discount percentage of the product | [optional] [default to undefined]
 **images** | **Array&lt;string&gt;** | Array of image URLs for the product | [default to undefined]
 **variants** | **Array&lt;string&gt;** | Array of product variants with size and stock information | [default to undefined]
 **categoryId** | **string** | Identifier for the category the product belongs to | [default to undefined]
 **category** | **object** | Category details of the product | [default to undefined]
-**tryOn** | **boolean** | Whether the product supports virtual try-on | [default to undefined]
 **status** | **string** | Identifier for the category the product belongs to | [default to undefined]
 **createdAt** | **string** | Timestamp when the product was created | [default to undefined]
 **updatedAt** | **string** | Timestamp when the product was last updated | [default to undefined]
@@ -32,13 +30,11 @@ const instance: ProductResponseDto = {
     description,
     price,
     discountPrice,
-    discountPercent,
-    thumbnail,
+    discountPercentage,
     images,
     variants,
     categoryId,
     category,
-    tryOn,
     status,
     createdAt,
     updatedAt,
