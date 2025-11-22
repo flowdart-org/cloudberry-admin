@@ -12,12 +12,12 @@ export const PRODUCT_SERVICES = {
   },
 
   getProduct: async (id: string): Promise<ApiResponse<Product>> => {
-    const response: any = await productApi.productControllerFindAll(id);
+    const response: any = await productApi.productControllerFindOne(id);
     return response.data;
   },
 
-  getProducts: async (): Promise<ApiResponse<ProductDetails[]>> => {
-    const response = await productApi.productControllerFindAll();
+  getProducts: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive'): Promise<ApiResponse<ProductDetails[]>> => {
+    const response = await productApi.productControllerFind( page, limit, search, status);
     return response.data;
   },
 

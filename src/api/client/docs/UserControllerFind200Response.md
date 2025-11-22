@@ -1,4 +1,4 @@
-# UserControllerFindAll200Response
+# UserControllerFind200Response
 
 
 ## Properties
@@ -13,9 +13,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { UserControllerFindAll200Response } from './api';
+import { UserControllerFind200Response } from './api';
 
-const instance: UserControllerFindAll200Response = {
+const instance: UserControllerFind200Response = {
     success,
     message,
     data,

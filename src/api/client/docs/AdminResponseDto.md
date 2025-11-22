@@ -8,8 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** | Unique identifier for the admin | [default to undefined]
 **email** | **string** | Email address of the admin | [default to undefined]
 **name** | **string** | Name of the admin | [default to undefined]
-**updatedAt** | **string** | Timestamp when the admin was last updated | [default to undefined]
-**createdAt** | **string** | Timestamp when the admin was created | [default to undefined]
+**role** | **string** | Role of the admin | [default to undefined]
 
 ## Example
 
@@ -20,8 +19,7 @@ const instance: AdminResponseDto = {
     id,
     email,
     name,
-    updatedAt,
-    createdAt,
+    role,
 };
 ```
 

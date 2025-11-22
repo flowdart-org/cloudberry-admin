@@ -1,19 +1,19 @@
-# CreateTryOnDto
+# UpdateCartDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**productId** | **string** | ID of the product to be tried on | [default to undefined]
+**quantity** | **number** | The new quantity of the cart item | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateTryOnDto } from './api';
+import { UpdateCartDto } from './api';
 
-const instance: CreateTryOnDto = {
-    productId,
+const instance: UpdateCartDto = {
+    quantity,
 };
 ```
 

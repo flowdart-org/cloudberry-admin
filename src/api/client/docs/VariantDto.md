@@ -5,6 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**id** | **string** | ID of the variant | [optional] [default to undefined]
 **size** | **string** | Size of the variant | [default to undefined]
 **stock** | **number** | Available stock for the variant | [default to undefined]
 
@@ -14,6 +15,7 @@ Name | Type | Description | Notes
 import { VariantDto } from './api';
 
 const instance: VariantDto = {
+    id,
     size,
     stock,
 };

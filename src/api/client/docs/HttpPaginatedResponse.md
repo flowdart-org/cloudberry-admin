@@ -1,4 +1,4 @@
-# UserControllerFindAll200Response
+# HttpPaginatedResponse
 
 
 ## Properties
@@ -7,19 +7,25 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
-**data** | [**Array&lt;UserResponseDto&gt;**](UserResponseDto.md) |  | [optional] [default to undefined]
+**data** | **object** |  | [optional] [default to undefined]
 **accessToken** | **string** |  | [optional] [default to undefined]
+**total** | **number** |  | [default to undefined]
+**limit** | **number** |  | [default to undefined]
+**page** | **number** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { UserControllerFindAll200Response } from './api';
+import { HttpPaginatedResponse } from './api';
 
-const instance: UserControllerFindAll200Response = {
+const instance: HttpPaginatedResponse = {
     success,
     message,
     data,
     accessToken,
+    total,
+    limit,
+    page,
 };
 ```
 

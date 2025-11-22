@@ -1,11 +1,11 @@
 # ProductApi
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://api.dev.cloudberrytryon.com*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**productControllerCreate**](#productcontrollercreate) | **POST** /api/product | |
-|[**productControllerFindAll**](#productcontrollerfindall) | **GET** /api/product | |
+|[**productControllerFind**](#productcontrollerfind) | **GET** /api/product | |
 |[**productControllerFindFeed**](#productcontrollerfindfeed) | **GET** /api/product/feed | |
 |[**productControllerFindOne**](#productcontrollerfindone) | **GET** /api/product/{id} | |
 |[**productControllerUpdate**](#productcontrollerupdate) | **PATCH** /api/product/{id} | |
@@ -61,8 +61,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **productControllerFindAll**
-> ProductControllerFindAll200Response productControllerFindAll()
+# **productControllerFind**
+> ProductControllerFind200Response productControllerFind()
 
 
 ### Example
@@ -76,16 +76,32 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindAll();
+let page: number; // (optional) (default to undefined)
+let limit: number; // (optional) (default to undefined)
+let search: string; // (optional) (default to undefined)
+let status: 'active' | 'inactive'; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.productControllerFind(
+    page,
+    limit,
+    search,
+    status
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] |  | (optional) defaults to undefined|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **status** | [**&#39;active&#39; | &#39;inactive&#39;**]**Array<&#39;active&#39; &#124; &#39;inactive&#39;>** |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+**ProductControllerFind200Response**
 
 ### Authorization
 
@@ -105,7 +121,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **productControllerFindFeed**
-> ProductControllerFindAll200Response productControllerFindFeed()
+> ProductControllerFind200Response productControllerFindFeed()
 
 
 ### Example
@@ -128,7 +144,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**ProductControllerFindAll200Response**
+**ProductControllerFind200Response**
 
 ### Authorization
 

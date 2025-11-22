@@ -43,7 +43,7 @@ export const ProductTable = ({ products, onDelete }: ProductTableProps) => {
                   <div className="h-10 w-10 rounded-lg bg-secondary overflow-hidden">
                     {product.images && product.images.length > 0 ? (
                       <img
-                        src={product.images[0]}
+                        src={product.thumbnail}
                         alt={product.name}
                         className="h-full w-full object-cover"
                       />

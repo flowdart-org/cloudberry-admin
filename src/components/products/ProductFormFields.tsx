@@ -31,7 +31,6 @@ export const ProductFormFields = ({
   categories,
 }: ProductFormFieldsProps) => {
   if(!formData) return <p>no form data</p>
-  console.log(formData, 'asdf')
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
@@ -133,23 +132,45 @@ export const ProductFormFields = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
-            <Select
-              value={formData?.category?.name}
-              onValueChange={(value) => setFormData({ ...formData, categoryId: value })}
-            >
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+  <Label htmlFor="category">Category *</Label>
+
+  <Select
+    value={formData.categoryId}
+    onValueChange={(value) => {
+      const selected = categories.find((c) => c.id === value);
+      setFormData({
+        ...formData,
+        categoryId: value,
+        category: selected || null, // optional but helpful
+      });
+    }}
+  >
+    <SelectTrigger id="category">
+      <SelectValue
+        placeholder="Select category"
+        // 👇 Shows category name even if only ID exists in formData
+        defaultValue={
+          formData.categoryId
+            ? categories.find((c) => c.id === formData.categoryId)?.name
+            : undefined
+        }
+      >
+        {formData.categoryId
+          ? categories.find((c) => c.id === formData.categoryId)?.name
+          : "Select category"}
+      </SelectValue>
+    </SelectTrigger>
+
+    <SelectContent>
+      {categories.map((category) => (
+        <SelectItem key={category.id} value={category.id}>
+          {category.name}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+</div>
+
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>

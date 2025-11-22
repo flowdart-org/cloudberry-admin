@@ -10,7 +10,6 @@ Name | Type | Description | Notes
 **phone** | **string** | Phone number of the user | [default to undefined]
 **dob** | **string** | Date of birth of the user | [default to undefined]
 **gender** | **string** | Gender of the user | [default to undefined]
-**password** | **string** | Password of the user | [default to undefined]
 
 ## Example
 
@@ -23,7 +22,6 @@ const instance: UpdateUserDto = {
     phone,
     dob,
     gender,
-    password,
 };
 ```
 

@@ -1,31 +1,30 @@
-# TryOnApi
+# PaymentApi
 
 All URIs are relative to *http://api.dev.cloudberrytryon.com*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**tryOnControllerTryOn**](#tryoncontrollertryon) | **POST** /api/ai/try-on | |
+|[**paymentControllerVerifyPayment**](#paymentcontrollerverifypayment) | **POST** /api/payment/verify | |
 
-# **tryOnControllerTryOn**
-> TryOnControllerTryOn200Response tryOnControllerTryOn(createTryOnDto)
+# **paymentControllerVerifyPayment**
+> paymentControllerVerifyPayment(body)
 
 
 ### Example
 
 ```typescript
 import {
-    TryOnApi,
-    Configuration,
-    CreateTryOnDto
+    PaymentApi,
+    Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new TryOnApi(configuration);
+const apiInstance = new PaymentApi(configuration);
 
-let createTryOnDto: CreateTryOnDto; //
+let body: object; //
 
-const { status, data } = await apiInstance.tryOnControllerTryOn(
-    createTryOnDto
+const { status, data } = await apiInstance.paymentControllerVerifyPayment(
+    body
 );
 ```
 
@@ -33,12 +32,12 @@ const { status, data } = await apiInstance.tryOnControllerTryOn(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **createTryOnDto** | **CreateTryOnDto**|  | |
+| **body** | **object**|  | |
 
 
 ### Return type
 
-**TryOnControllerTryOn200Response**
+void (empty response body)
 
 ### Authorization
 
@@ -47,13 +46,13 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: Not defined
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** |  |  -  |
+|**201** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

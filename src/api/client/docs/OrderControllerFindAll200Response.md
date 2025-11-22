@@ -1,4 +1,4 @@
-# UserControllerFindAll200Response
+# OrderControllerFindAll200Response
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
-**data** | [**Array&lt;UserResponseDto&gt;**](UserResponseDto.md) |  | [optional] [default to undefined]
+**data** | **Array&lt;object&gt;** |  | [optional] [default to undefined]
 **accessToken** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { UserControllerFindAll200Response } from './api';
+import { OrderControllerFindAll200Response } from './api';
 
-const instance: UserControllerFindAll200Response = {
+const instance: OrderControllerFindAll200Response = {
     success,
     message,
     data,

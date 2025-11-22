@@ -16,7 +16,7 @@ export interface User {
   gender?: string;
   role?: string;
   status?: 'active' | 'suspend';
-  createdAt: string;
+  joined: string;
   updatedAt: string;
 }
 

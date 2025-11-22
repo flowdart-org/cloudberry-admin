@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CloudBerry API
- * API documentation for the CLoudBerry E-commerce Api
+ * Cloudberry API
+ * API documentation for the Cloudberry E-commerce Api
  *
  * The version of the OpenAPI document: 1.0
  * Contact: rahilsardar234@gmail.com
@@ -19,7 +19,7 @@ import type { Configuration } from './configuration';
 import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
 import globalAxios from 'axios';
 
-export const BASE_PATH = "http://localhost".replace(/\/+$/, "");
+export const BASE_PATH = "http://api.dev.cloudberrytryon.com".replace(/\/+$/, "");
 
 export const COLLECTION_FORMATS = {
     csv: ",",

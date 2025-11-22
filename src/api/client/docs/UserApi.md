@@ -1,17 +1,17 @@
 # UserApi
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://api.dev.cloudberrytryon.com*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**userControllerFindAll**](#usercontrollerfindall) | **GET** /api/user | |
+|[**userControllerFind**](#usercontrollerfind) | **GET** /api/user | |
 |[**userControllerFindOne**](#usercontrollerfindone) | **GET** /api/user/{id} | |
 |[**userControllerMe**](#usercontrollerme) | **GET** /api/user/me | |
 |[**userControllerUpdate**](#usercontrollerupdate) | **PATCH** /api/user | |
 |[**userControllerUpdateStatus**](#usercontrollerupdatestatus) | **PATCH** /api/user/{id}/status | |
 
-# **userControllerFindAll**
-> UserControllerFindAll200Response userControllerFindAll()
+# **userControllerFind**
+> UserControllerFind200Response userControllerFind()
 
 
 ### Example
@@ -25,16 +25,32 @@ import {
 const configuration = new Configuration();
 const apiInstance = new UserApi(configuration);
 
-const { status, data } = await apiInstance.userControllerFindAll();
+let page: number; // (optional) (default to undefined)
+let limit: number; // (optional) (default to undefined)
+let search: string; // (optional) (default to undefined)
+let status: 'active' | 'suspended'; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.userControllerFind(
+    page,
+    limit,
+    search,
+    status
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] |  | (optional) defaults to undefined|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **status** | [**&#39;active&#39; | &#39;suspended&#39;**]**Array<&#39;active&#39; &#124; &#39;suspended&#39;>** |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**UserControllerFindAll200Response**
+**UserControllerFind200Response**
 
 ### Authorization
 

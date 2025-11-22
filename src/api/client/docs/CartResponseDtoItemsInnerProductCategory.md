@@ -1,19 +1,21 @@
-# CreateTryOnDto
+# CartResponseDtoItemsInnerProductCategory
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**productId** | **string** | ID of the product to be tried on | [default to undefined]
+**id** | **string** |  | [optional] [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateTryOnDto } from './api';
+import { CartResponseDtoItemsInnerProductCategory } from './api';
 
-const instance: CreateTryOnDto = {
-    productId,
+const instance: CartResponseDtoItemsInnerProductCategory = {
+    id,
+    name,
 };
 ```
 

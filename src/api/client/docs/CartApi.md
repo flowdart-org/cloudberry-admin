@@ -1,17 +1,18 @@
 # CartApi
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *http://api.dev.cloudberrytryon.com*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**cartControllerAddToCart**](#cartcontrolleraddtocart) | **POST** /api/cart/add | |
-|[**cartControllerClearCart**](#cartcontrollerclearcart) | **DELETE** /api/cart | |
+|[**cartControllerCheckout**](#cartcontrollercheckout) | **POST** /api/cart/checkout | |
+|[**cartControllerCheckoutLink**](#cartcontrollercheckoutlink) | **POST** /api/cart/checkout/link | |
 |[**cartControllerGetUserCart**](#cartcontrollergetusercart) | **GET** /api/cart | |
 |[**cartControllerRemoveItem**](#cartcontrollerremoveitem) | **DELETE** /api/cart/{itemId} | |
 |[**cartControllerUpdateQuantity**](#cartcontrollerupdatequantity) | **PATCH** /api/cart/{itemId} | |
 
 # **cartControllerAddToCart**
-> cartControllerAddToCart(body)
+> cartControllerAddToCart(createCartDto)
 
 
 ### Example
@@ -19,16 +20,17 @@ All URIs are relative to *http://localhost*
 ```typescript
 import {
     CartApi,
-    Configuration
+    Configuration,
+    CreateCartDto
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CartApi(configuration);
 
-let body: object; //
+let createCartDto: CreateCartDto; //
 
 const { status, data } = await apiInstance.cartControllerAddToCart(
-    body
+    createCartDto
 );
 ```
 
@@ -36,7 +38,7 @@ const { status, data } = await apiInstance.cartControllerAddToCart(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **body** | **object**|  | |
+| **createCartDto** | **CreateCartDto**|  | |
 
 
 ### Return type
@@ -60,8 +62,8 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **cartControllerClearCart**
-> cartControllerClearCart()
+# **cartControllerCheckout**
+> CartControllerCheckout200Response cartControllerCheckout()
 
 
 ### Example
@@ -75,7 +77,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new CartApi(configuration);
 
-const { status, data } = await apiInstance.cartControllerClearCart();
+const { status, data } = await apiInstance.cartControllerCheckout();
 ```
 
 ### Parameters
@@ -84,7 +86,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**CartControllerCheckout200Response**
 
 ### Authorization
 
@@ -93,7 +95,50 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **cartControllerCheckoutLink**
+> CartControllerCheckoutLink200Response cartControllerCheckoutLink()
+
+
+### Example
+
+```typescript
+import {
+    CartApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new CartApi(configuration);
+
+const { status, data } = await apiInstance.cartControllerCheckoutLink();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**CartControllerCheckoutLink200Response**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -104,7 +149,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cartControllerGetUserCart**
-> cartControllerGetUserCart()
+> CartControllerGetUserCart200Response cartControllerGetUserCart()
 
 
 ### Example
@@ -127,7 +172,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-void (empty response body)
+**CartControllerGetUserCart200Response**
 
 ### Authorization
 
@@ -136,7 +181,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -197,7 +242,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cartControllerUpdateQuantity**
-> cartControllerUpdateQuantity(body)
+> cartControllerUpdateQuantity(updateCartDto)
 
 
 ### Example
@@ -205,18 +250,19 @@ No authorization required
 ```typescript
 import {
     CartApi,
-    Configuration
+    Configuration,
+    UpdateCartDto
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new CartApi(configuration);
 
 let itemId: string; // (default to undefined)
-let body: object; //
+let updateCartDto: UpdateCartDto; //
 
 const { status, data } = await apiInstance.cartControllerUpdateQuantity(
     itemId,
-    body
+    updateCartDto
 );
 ```
 
@@ -224,7 +270,7 @@ const { status, data } = await apiInstance.cartControllerUpdateQuantity(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **body** | **object**|  | |
+| **updateCartDto** | **UpdateCartDto**|  | |
 | **itemId** | [**string**] |  | defaults to undefined|
 
 

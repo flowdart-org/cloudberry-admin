@@ -1,19 +1,19 @@
-# CreateTryOnDto
+# CheckoutCartLinkResponseDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**productId** | **string** | ID of the product to be tried on | [default to undefined]
+**payment_url** | **string** | URL to proceed with the payment for the cart checkout | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateTryOnDto } from './api';
+import { CheckoutCartLinkResponseDto } from './api';
 
-const instance: CreateTryOnDto = {
-    productId,
+const instance: CheckoutCartLinkResponseDto = {
+    payment_url,
 };
 ```
 

@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | [**ProductResponseDto**](ProductResponseDto.md) |  | [optional] [default to undefined]
+**accessToken** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: ProductControllerCreate200Response = {
     success,
     message,
     data,
+    accessToken,
 };
 ```
 

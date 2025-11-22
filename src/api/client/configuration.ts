@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * CloudBerry API
- * API documentation for the CLoudBerry E-commerce Api
+ * Cloudberry API
+ * API documentation for the Cloudberry E-commerce Api
  *
  * The version of the OpenAPI document: 1.0
  * Contact: rahilsardar234@gmail.com

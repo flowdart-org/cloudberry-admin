@@ -1,19 +1,19 @@
-# CreateTryOnDto
+# CreateOrderDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**productId** | **string** | ID of the product to be tried on | [default to undefined]
+**amount** | **number** | Amount for the order in INR | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateTryOnDto } from './api';
+import { CreateOrderDto } from './api';
 
-const instance: CreateTryOnDto = {
-    productId,
+const instance: CreateOrderDto = {
+    amount,
 };
 ```
 

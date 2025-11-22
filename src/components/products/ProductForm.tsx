@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ProductFormFields } from "./ProductFormFields";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Product, VariantDto } from "@/types/product.types";
+import { Product, ProductDetails, VariantDto } from "@/types/product.types";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
@@ -10,7 +10,7 @@ import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { Category } from "@/types/category.types";
 
 interface ProductFormProps {
-  initialData?: Product;
+  initialData?: ProductDetails;
   onSuccess?: (product: Product) => void;
   onCancel?: () => void;
 }
@@ -24,12 +24,13 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
     description: initialData?.description || "",
     price: initialData?.price || 0,
     discountPercent: initialData?.discountPercent || 0,
-    categoryId: initialData?.categoryId?.toString() || "",
+    categoryId: initialData?.category?.id?.toString() || "",
     status: (initialData?.status || "active") as "active" | "inactive",
     tryOn: initialData?.tryOn || false,
     tags: initialData?.tags || [],
     variants: initialData?.variants || [],
   });
+  console.log(formData, 'from product form')
 
   const [newTag, setNewTag] = useState("");
   const [newVariant, setNewVariant] = useState<VariantDto>({ size: "", stock: 0 });

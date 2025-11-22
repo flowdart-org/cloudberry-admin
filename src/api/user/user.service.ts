@@ -11,8 +11,8 @@ export const USER_SERVICES = {
     return response.data;
   },
 
-  fetchUsers: async (): Promise<ApiResponse<User[]>> => {
-    const response = await userApi.userControllerFindAll();
+  fetchUsers: async (page?: number, limit?: number, search?: string, status?: 'active' | 'suspended'): Promise<ApiResponse<User[]>> => {
+    const response = await userApi.userControllerFind( page, limit, search, status);
     return response.data
   },
 

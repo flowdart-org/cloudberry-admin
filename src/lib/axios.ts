@@ -1,8 +1,16 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios from "axios";
 import { ENV } from "./env";
 import { ApiResponse } from "@/types/common";
 import { useAuthStore } from "@/store/authStore";
-import { AdminApi, AuthApi, CategoryApi, Configuration, MediaApi, ProductApi, UserApi } from "@/api/client";
+import {
+  AdminApi,
+  AuthApi,
+  CategoryApi,
+  Configuration,
+  MediaApi,
+  ProductApi,
+  UserApi,
+} from "@/api/client";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -79,7 +87,6 @@ api.interceptors.response.use(
   }
 );
 
-
 export async function request<T>(
   callback: any,
   ...props: any[]
@@ -95,12 +102,45 @@ export async function request<T>(
   }
 }
 
+export const authApi = new AuthApi(config, ENV.API_BASE_URL, api);
+export const adminApi = new AdminApi(config, ENV.API_BASE_URL, api);
+export const userApi = new UserApi(config, ENV.API_BASE_URL, api);
+export const categoryApi = new CategoryApi(config, ENV.API_BASE_URL, api);
+export const productApi = new ProductApi(config, ENV.API_BASE_URL, api);
+export const mediaApi = new MediaApi(config, ENV.API_BASE_URL, api);
 
+type ParamsOf<T extends (...args: any) => any> = Parameters<T>;
+type ReturnOf<T extends (...args: any) => any> = Awaited<ReturnType<T>>;
 
+type ApiResponse<T> = { data: T; error: null } | { data: null; error: unknown };
 
-export const authApi = new AuthApi(config, ENV.API_BASE_URL, api)
-export const adminApi = new AdminApi(config, ENV.API_BASE_URL, api)
-export const userApi = new UserApi(config, ENV.API_BASE_URL, api)
-export const categoryApi = new CategoryApi(config, ENV.API_BASE_URL, api)
-export const productApi = new ProductApi(config, ENV.API_BASE_URL, api)
-export const mediaApi = new MediaApi(config, ENV.API_BASE_URL, api)
+export function handleApi<TFn extends (...args: any[]) => any>(fn: TFn) {
+  return async (
+    ...args: ParamsOf<TFn>
+  ): Promise<ApiResponse<ReturnOf<TFn>>> => {
+    try {
+      const result = await fn(...args);
+      return { data: result as ReturnOf<TFn>, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  };
+}
+
+const loginApi = handleApi(authApi.authControllerAdminLogin);
+
+(async () => {
+  const { data, error } = await loginApi({
+    email: "23",
+    password: "32e2eeqw",
+  });
+
+  data.data.data
+
+  if (error) {
+    console.error("Login failed:", error);
+    return;
+  }
+
+  console.log("Login success:", data);
+})();

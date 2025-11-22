@@ -1,19 +1,19 @@
-# CreateTryOnDto
+# TryOnResponseDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**productId** | **string** | ID of the product to be tried on | [default to undefined]
+**images** | **Array&lt;string&gt;** | Array of generated try-on image URLs | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateTryOnDto } from './api';
+import { TryOnResponseDto } from './api';
 
-const instance: CreateTryOnDto = {
-    productId,
+const instance: TryOnResponseDto = {
+    images,
 };
 ```
 
