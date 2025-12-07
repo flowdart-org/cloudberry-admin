@@ -9,18 +9,19 @@ export interface Product {
   status: "active" | "inactive";
   tryOn: boolean;
   tags?: string[];
-  images?: ProductImage[]
+  images?: string[]
   thumbnail?: string;
 }
 
 export interface ProductDetails {
-  id: string;
+  id?: string;
   name: string;
   description: string;
   price: number;
   variants: VariantDto[];
   discountPercent: number;
-  category: {
+  categoryId?: string;
+  category?: {
     name: string;
     id: string
   };

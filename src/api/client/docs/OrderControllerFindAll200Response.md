@@ -7,8 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
-**data** | **Array&lt;object&gt;** |  | [optional] [default to undefined]
-**accessToken** | **string** |  | [optional] [default to undefined]
+**data** | [**Array&lt;OrderResponseDto&gt;**](OrderResponseDto.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -19,7 +18,6 @@ const instance: OrderControllerFindAll200Response = {
     success,
     message,
     data,
-    accessToken,
 };
 ```
 

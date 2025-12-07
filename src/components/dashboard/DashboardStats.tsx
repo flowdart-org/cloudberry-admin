@@ -26,12 +26,12 @@ const StatCard = ({ title, value, change, icon }: StatCardProps) => {
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
         <div className="flex items-center gap-1 mt-1">
-          {isPositive ? (
+          {/* {isPositive ? (
             <TrendingUp className="h-4 w-4 text-success" />
           ) : (
             <TrendingDown className="h-4 w-4 text-destructive" />
-          )}
-          <span
+          )} */}
+          {/* <span
             className={cn(
               'text-sm font-medium',
               isPositive ? 'text-success' : 'text-destructive'
@@ -39,36 +39,36 @@ const StatCard = ({ title, value, change, icon }: StatCardProps) => {
           >
             {isPositive ? '+' : ''}{change}%
           </span>
-          <span className="text-sm text-muted-foreground ml-1">vs last month</span>
+          <span className="text-sm text-muted-foreground ml-1">vs last month</span> */}
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export const DashboardStats = () => {
+export const DashboardStats = ({revenue, orders, products, customers}) => {
   const stats = [
     {
       title: 'Total Revenue',
-      value: formatCurrency(45231.89),
+      value: formatCurrency(revenue),
       change: 12.5,
       icon: <DollarSign className="h-4 w-4" />,
     },
     {
       title: 'Orders',
-      value: '1,234',
+      value: orders,
       change: 8.2,
       icon: <ShoppingCart className="h-4 w-4" />,
     },
     {
       title: 'Products',
-      value: '567',
+      value: products,
       change: -2.4,
       icon: <Package className="h-4 w-4" />,
     },
     {
       title: 'Customers',
-      value: '8,492',
+      value: customers,
       change: 15.3,
       icon: <Users className="h-4 w-4" />,
     },

@@ -135,11 +135,36 @@ import {
 const configuration = new Configuration();
 const apiInstance = new ProductApi(configuration);
 
-const { status, data } = await apiInstance.productControllerFindFeed();
+let page: number; // (optional) (default to undefined)
+let limit: number; // (optional) (default to undefined)
+let search: string; // (optional) (default to undefined)
+let size: string; // (optional) (default to undefined)
+let minPrice: number; // (optional) (default to undefined)
+let maxPrice: number; // (optional) (default to undefined)
+let categories: Array<string>; //Array of category IDs (optional) (default to undefined)
+
+const { status, data } = await apiInstance.productControllerFindFeed(
+    page,
+    limit,
+    search,
+    size,
+    minPrice,
+    maxPrice,
+    categories
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] |  | (optional) defaults to undefined|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **size** | [**string**] |  | (optional) defaults to undefined|
+| **minPrice** | [**number**] |  | (optional) defaults to undefined|
+| **maxPrice** | [**number**] |  | (optional) defaults to undefined|
+| **categories** | **Array&lt;string&gt;** | Array of category IDs | (optional) defaults to undefined|
 
 
 ### Return type

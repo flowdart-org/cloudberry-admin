@@ -12,7 +12,7 @@ All URIs are relative to *http://api.dev.cloudberrytryon.com*
 |[**cartControllerUpdateQuantity**](#cartcontrollerupdatequantity) | **PATCH** /api/cart/{itemId} | |
 
 # **cartControllerAddToCart**
-> cartControllerAddToCart(createCartDto)
+> CartControllerAddToCart200Response cartControllerAddToCart(createCartDto)
 
 
 ### Example
@@ -43,7 +43,7 @@ const { status, data } = await apiInstance.cartControllerAddToCart(
 
 ### Return type
 
-void (empty response body)
+**CartControllerAddToCart200Response**
 
 ### Authorization
 
@@ -52,13 +52,13 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**201** |  |  -  |
+|**200** |  |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -192,7 +192,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cartControllerRemoveItem**
-> cartControllerRemoveItem()
+> object cartControllerRemoveItem()
 
 
 ### Example
@@ -222,7 +222,7 @@ const { status, data } = await apiInstance.cartControllerRemoveItem(
 
 ### Return type
 
-void (empty response body)
+**object**
 
 ### Authorization
 
@@ -231,7 +231,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -242,7 +242,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cartControllerUpdateQuantity**
-> cartControllerUpdateQuantity(updateCartDto)
+> CartControllerAddToCart200Response cartControllerUpdateQuantity(updateCartDto)
 
 
 ### Example
@@ -276,7 +276,7 @@ const { status, data } = await apiInstance.cartControllerUpdateQuantity(
 
 ### Return type
 
-void (empty response body)
+**CartControllerAddToCart200Response**
 
 ### Authorization
 
@@ -285,7 +285,7 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: Not defined
+ - **Accept**: application/json
 
 
 ### HTTP response details

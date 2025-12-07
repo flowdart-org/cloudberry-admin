@@ -24,11 +24,36 @@ import {
 const configuration = new Configuration();
 const apiInstance = new OrderApi(configuration);
 
-const { status, data } = await apiInstance.orderControllerFindAll();
+let page: number; // (optional) (default to undefined)
+let limit: number; // (optional) (default to undefined)
+let search: string; // (optional) (default to undefined)
+let orderStatus: string; // (optional) (default to undefined)
+let paymentStatus: string; // (optional) (default to undefined)
+let startDate: string; // (optional) (default to undefined)
+let endDate: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.orderControllerFindAll(
+    page,
+    limit,
+    search,
+    orderStatus,
+    paymentStatus,
+    startDate,
+    endDate
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] |  | (optional) defaults to undefined|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **orderStatus** | [**string**] |  | (optional) defaults to undefined|
+| **paymentStatus** | [**string**] |  | (optional) defaults to undefined|
+| **startDate** | [**string**] |  | (optional) defaults to undefined|
+| **endDate** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -67,11 +92,36 @@ import {
 const configuration = new Configuration();
 const apiInstance = new OrderApi(configuration);
 
-const { status, data } = await apiInstance.orderControllerFindAllByUser();
+let page: number; // (optional) (default to undefined)
+let limit: number; // (optional) (default to undefined)
+let search: string; // (optional) (default to undefined)
+let orderStatus: string; // (optional) (default to undefined)
+let paymentStatus: string; // (optional) (default to undefined)
+let startDate: string; // (optional) (default to undefined)
+let endDate: string; // (optional) (default to undefined)
+
+const { status, data } = await apiInstance.orderControllerFindAllByUser(
+    page,
+    limit,
+    search,
+    orderStatus,
+    paymentStatus,
+    startDate,
+    endDate
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **page** | [**number**] |  | (optional) defaults to undefined|
+| **limit** | [**number**] |  | (optional) defaults to undefined|
+| **search** | [**string**] |  | (optional) defaults to undefined|
+| **orderStatus** | [**string**] |  | (optional) defaults to undefined|
+| **paymentStatus** | [**string**] |  | (optional) defaults to undefined|
+| **startDate** | [**string**] |  | (optional) defaults to undefined|
+| **endDate** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
@@ -146,7 +196,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **orderControllerUpdate**
-> OrderControllerFindOne200Response orderControllerUpdate(body)
+> OrderControllerFindOne200Response orderControllerUpdate(updateOrderDto)
 
 
 ### Example
@@ -154,18 +204,19 @@ No authorization required
 ```typescript
 import {
     OrderApi,
-    Configuration
+    Configuration,
+    UpdateOrderDto
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new OrderApi(configuration);
 
 let id: string; // (default to undefined)
-let body: object; //
+let updateOrderDto: UpdateOrderDto; //
 
 const { status, data } = await apiInstance.orderControllerUpdate(
     id,
-    body
+    updateOrderDto
 );
 ```
 
@@ -173,7 +224,7 @@ const { status, data } = await apiInstance.orderControllerUpdate(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **body** | **object**|  | |
+| **updateOrderDto** | **UpdateOrderDto**|  | |
 | **id** | [**string**] |  | defaults to undefined|
 
 

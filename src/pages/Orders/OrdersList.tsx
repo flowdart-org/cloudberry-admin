@@ -1,94 +1,103 @@
-import { useState } from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { OrderTable } from '@/components/orders/OrderTable';
-import { Order } from '@/types/order';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+"use client";
 
-// Mock data
-const mockOrders: Order[] = Array.from({ length: 10 }, (_, i) => ({
-  id: `${i + 1}`,
-  orderNumber: `${10240 - i}`,
-  customerId: `${i + 1}`,
-  customerName: `Customer ${i + 1}`,
-  customerEmail: `customer${i + 1}@example.com`,
-  items: [],
-  subtotal: Math.random() * 500 + 100,
-  tax: 0,
-  shipping: 15,
-  total: Math.random() * 500 + 115,
-  status: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'][
-    Math.floor(Math.random() * 5)
-  ] as any,
-  shippingAddress: {
-    street: '123 Main St',
-    city: 'New York',
-    state: 'NY',
-    zipCode: '10001',
-    country: 'USA',
-  },
-  createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-  updatedAt: new Date().toISOString(),
-}));
+import { useEffect } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { Pagination } from "@/components/common/Pagination";
+import { OrderTable } from "@/components/orders/OrderTable";
+import { useOrderStore } from "@/store/useOrderStore";
 
 const OrdersList = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [orders] = useState<Order[]>(mockOrders);
+  const {
+    orders,
+    search,
+    orderStatus,
+    paymentStatus,
+    page,
+    pageSize,
+    totalItems,
+    totalPages,
+    loading,
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = 
-      order.orderNumber.includes(searchQuery) ||
-      order.customerName.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+    setSearch,
+    setOrderStatus,
+    setPaymentStatus,
+    setPage,
+    setPageSize,
+    fetchOrders,
+  } = useOrderStore();
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Orders</h1>
-        <p className="text-muted-foreground mt-1">
-          Track and manage customer orders
-        </p>
+        <p className="text-muted-foreground mt-1">Track and manage customer orders</p>
       </div>
 
       <div className="flex items-center gap-4">
+
+        {/* SEARCH */}
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
           <Input
             type="search"
             placeholder="Search orders..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
-        
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+
+        {/* ORDER STATUS */}
+        <Select value={orderStatus} onValueChange={setOrderStatus}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder="Order Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
             <SelectItem value="shipped">Shipped</SelectItem>
             <SelectItem value="delivered">Delivered</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="canceled">Canceled</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* PAYMENT STATUS */}
+        <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Payment Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="paid">Paid</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="failed">Failed</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <OrderTable orders={filteredOrders} />
+      {/* TABLE */}
+      {loading ? (
+        <div className="text-center py-10">Loading...</div>
+      ) : (
+        <OrderTable orders={orders} />
+      )}
+
+      {/* PAGINATION */}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => setPageSize(size)}
+      />
     </div>
   );
 };

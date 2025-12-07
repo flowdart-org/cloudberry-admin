@@ -10,8 +10,8 @@ import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { Category } from "@/types/category.types";
 
 interface ProductFormProps {
-  initialData?: ProductDetails;
-  onSuccess?: (product: Product) => void;
+  initialData?: ProductDetails ;
+  onSuccess?: (product?: Product) => void ;
   onCancel?: () => void;
 }
 
@@ -19,7 +19,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(initialData ? {
     name: initialData?.name || "",
     description: initialData?.description || "",
     price: initialData?.price || 0,
@@ -29,6 +29,16 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
     tryOn: initialData?.tryOn || false,
     tags: initialData?.tags || [],
     variants: initialData?.variants || [],
+  } : {
+    name: "",
+    description: "",
+    price: 0,
+    discountPercent: 0,
+    categoryId: "",
+    status: "inactive" as "active" | "inactive",
+    tryOn: false,
+    tags: [],
+    variants: []
   });
   console.log(formData, 'from product form')
 
@@ -160,6 +170,9 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
                 Cancel
               </Button>
             )}
+            {initialData && <Button type="button" variant="outline" onClick={() => onSuccess()} disabled={isSubmitting}>
+               Skip
+            </Button>}
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {initialData ? "Update Product" : "Create Product"}

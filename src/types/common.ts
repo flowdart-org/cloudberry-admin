@@ -6,19 +6,22 @@ export interface PaginationParams {
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
+  message: string;
+  success: boolean;
+  data: T;
   total: number;
   page: number;
   limit: number;
-  totalPages: number;
+  // totalPages: number;
 }
 
 export interface ApiResponse<T> {
+  message: string;
   success: boolean;
-  data?: T;
-  message?: string;
+  data: T;
   error?: string;
 }
+
 
 export interface SelectOption {
   label: string;

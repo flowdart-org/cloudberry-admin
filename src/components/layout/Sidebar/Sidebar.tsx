@@ -9,6 +9,7 @@ import {
   PackageSearch,
   ChevronLeft,
   ChevronRight,
+  Home,
 } from "lucide-react";
 import { cn } from "@/utils/tailwind";
 import { ROUTES } from "@/config/routes.config";
@@ -23,12 +24,12 @@ interface SidebarProps {
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: ROUTES.DASHBOARD },
-  { icon: Package, label: "Products", path: ROUTES.PRODUCTS },
-  { icon: FolderTree, label: "Categories", path: ROUTES.CATEGORIES },
-  { icon: ShoppingCart, label: "Orders", path: ROUTES.ORDERS },
   { icon: Users, label: "Users", path: ROUTES.USERS },
-  { icon: PackageSearch, label: "Inventory", path: ROUTES.INVENTORY },
-  { icon: Settings, label: "Settings", path: ROUTES.SETTINGS },
+  { icon: FolderTree, label: "Categories", path: ROUTES.CATEGORIES },
+  { icon: Package, label: "Products", path: ROUTES.PRODUCTS },
+  { icon: ShoppingCart, label: "Orders", path: ROUTES.ORDERS },
+  { icon: Home, label: "Home Config", path: ROUTES.HOME_CONFIG },
+  // { icon: Settings, label: "Settings", path: ROUTES.SETTINGS },
 ];
 
 export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {

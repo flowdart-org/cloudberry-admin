@@ -1,22 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const data = [
-  { name: 'Jan', sales: 4000 },
-  { name: 'Feb', sales: 3000 },
-  { name: 'Mar', sales: 5000 },
-  { name: 'Apr', sales: 4500 },
-  { name: 'May', sales: 6000 },
-  { name: 'Jun', sales: 5500 },
-  { name: 'Jul', sales: 7000 },
-  { name: 'Aug', sales: 6500 },
-  { name: 'Sep', sales: 8000 },
-  { name: 'Oct', sales: 7500 },
-  { name: 'Nov', sales: 9000 },
-  { name: 'Dec', sales: 8500 },
-];
-
-export const SalesChart = () => {
+export const SalesChart = ({data} : {data: {month: string, amount: number}[]}) => {
   return (
     <Card>
       <CardHeader>
@@ -28,7 +13,7 @@ export const SalesChart = () => {
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis 
-                dataKey="name" 
+                dataKey="month" 
                 stroke="hsl(var(--muted-foreground))"
                 fontSize={12}
               />
@@ -45,7 +30,7 @@ export const SalesChart = () => {
               />
               <Line 
                 type="monotone" 
-                dataKey="sales" 
+                dataKey="amount" 
                 stroke="hsl(var(--primary))" 
                 strokeWidth={2}
                 dot={{ fill: 'hsl(var(--primary))' }}

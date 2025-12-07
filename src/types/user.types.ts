@@ -1,9 +1,8 @@
 export interface AdminUser {
   id: string;
-  email?: string;
-  name?: string;
-  createdAt: string;
-  updatedAt: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'user'
 }
 
 
@@ -23,5 +22,6 @@ export interface User {
 export interface ExtendedUser extends User {
   totalOrders: number;
   totalSpent: number;
-
+  averageOrderValue: number;
+  lastOrderDate: Date;
 }

@@ -3,7 +3,6 @@ import { ArrowLeft, Mail, Phone, Calendar, ShoppingBag, DollarSign, Package, Ban
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
@@ -32,32 +31,17 @@ import { ExtendedUser } from '@/types/user.types';
 import { useEffect, useState } from 'react';
 import { USER_SERVICES } from '@/api/user/user.service';
 
-// Mock user data
-const mockUser = {
-  id: '1',
-  email: 'john.doe@example.com',
-  firstName: 'John',
-  lastName: 'Doe',
-  phone: '+1 (555) 123-4567',
-  role: 'customer' as const,
-  status: 'active' as const,
-  createdAt: '2024-01-15T10:30:00Z',
-  updatedAt: '2024-11-20T15:45:00Z',
-  totalOrders: 0,
-  totalSpent: 0,
-  averageOrderValue: 0,
-  lastOrderDate: '2024-11-18T09:20:00Z',
-};
+
 
 const mockOrders = [
-  {
-    id: '1',
-    orderNumber: '10234',
-    date: '2024-11-18T09:20:00Z',
-    total: 290.00,
-    status: 'delivered' as const,
-    items: 3,
-  },
+  // {
+  //   id: '1',
+  //   orderNumber: '10234',
+  //   date: '2024-11-18T09:20:00Z',
+  //   total: 290.00,
+  //   status: 'delivered' as const,
+  //   items: 3,
+  // },
   // {
   //   id: '2',
   //   orderNumber: '10180',
@@ -77,11 +61,9 @@ const mockOrders = [
 ];
 
 const mockActivity = [
-  { id: '1', action: 'Order placed', details: 'Order #10234', timestamp: '2024-11-18T09:20:00Z' },
+  // { id: '1', action: 'Order placed', details: 'Order #10234', timestamp: '2024-11-18T09:20:00Z' },
   // { id: '2', action: 'Profile updated', details: 'Changed phone number', timestamp: '2024-11-15T16:45:00Z' },
-  // { id: '3', action: 'Order placed', details: 'Order #10180', timestamp: '2024-11-10T14:30:00Z' },
-  // { id: '4', action: 'Password changed', details: 'Security update', timestamp: '2024-11-05T10:20:00Z' },
-  // { id: '5', action: 'Order placed', details: 'Order #10125', timestamp: '2024-10-28T11:15:00Z' },
+
 ];
 
 const UserDetails = () => {
@@ -129,7 +111,7 @@ const UserDetails = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {mockUser.status === 'active' ? (
+          {user?.status ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive">
@@ -170,7 +152,7 @@ const UserDetails = () => {
             <ShoppingBag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockUser.totalOrders}</div>
+            <div className="text-2xl font-bold">{user?.totalOrders ? formatCurrency(user?.totalOrders) : 0}</div>
           </CardContent>
         </Card>
 
@@ -182,7 +164,7 @@ const UserDetails = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(mockUser.totalSpent)}</div>
+            <div className="text-2xl font-bold">{user?.totalSpent ? formatCurrency(user?.totalSpent) : 0}</div>
           </CardContent>
         </Card>
 
@@ -194,7 +176,7 @@ const UserDetails = () => {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(mockUser.averageOrderValue)}</div>
+            <div className="text-2xl font-bold">{user?.averageOrderValue ? formatCurrency(user?.averageOrderValue) : 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -210,7 +192,7 @@ const UserDetails = () => {
                 <h3 className="text-xl font-semibold">
                   {user?.name || 'Unavailable'}
                 </h3>
-                <Badge variant={user?.status === 'active' ? 'active' : 'destructive'}>
+                <Badge variant={user?.status === 'active' ? 'default' : 'destructive'}>
                   {user?.status || 'active'}
                 </Badge>
               </div>
@@ -229,7 +211,7 @@ const UserDetails = () => {
               
               <div className="flex items-center gap-3 text-sm">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>Joined {formatDate(user?.createdAt, 'long')}</span>
+                <span>Joined {formatDate(user?.joined, 'long')}</span>
               </div>
 
               <div className="pt-4 border-t border-border">
@@ -241,7 +223,7 @@ const UserDetails = () => {
 
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Last Order</div>
-                <div className="text-sm">{formatDate(mockUser.lastOrderDate, 'long')}</div>
+                <div className="text-sm">{user && user?.lastOrderDate ? formatDate(user?.lastOrderDate, 'long') : 'no orders'}</div>
               </div>
             </div>
           </CardContent>

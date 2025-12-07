@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Category } from "@/types/category.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,19 +14,39 @@ import {
   DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Plus, Search, Pencil, Loader2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { Pagination } from "@/components/common/Pagination";
 
-export const CategoriesList = () => {
+/* --------------------------------
+   🔹 Debounce Hook (shared pattern)
+-------------------------------- */
+function useDebouncedValue<T>(value: T, delay = 400): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+const CategoriesList = () => {
+  /* ---------- State ---------- */
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "">("");
 
+  // Debounced Search
+  const debouncedSearch = useDebouncedValue(searchQuery, 400);
+
+  // Pagination
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
+  // UI state
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -41,107 +61,114 @@ export const CategoriesList = () => {
     status: "inactive" as "active" | "inactive",
   });
 
-  /* -------------------- Fetch Categories -------------------- */
-  const loadCategories = async () => {
+  // Prevents outdated API response updating UI
+  const requestRef = useRef(0);
+
+  /* --------------------------------
+     🔹 Fetch Categories (Optimized)
+  -------------------------------- */
+  const loadCategories = useCallback(async () => {
     setIsLoading(true);
+    const requestId = ++requestRef.current;
+
     try {
       const response = await CATEGORY_SERVICES.getCategories(
         page,
         pageSize,
-        searchQuery,
+        debouncedSearch,
         statusFilter || undefined
       );
 
-      if (response.success) {
-        setCategories(response.data.items ?? response.data);
-        setTotalItems(response.data.total ?? response.data.length);
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load categories.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      if (requestId !== requestRef.current) return; // stale safeguard
 
-  // Fetch whenever filters change:
+      if (response.success) {
+        setCategories(response.data ?? []);
+        setTotalItems(response.total ?? 0);
+      }
+    } catch {
+      toast.error("Failed to load categories");
+    } finally {
+      if (requestId === requestRef.current) {
+        setIsLoading(false);
+      }
+    }
+  }, [page, pageSize, debouncedSearch, statusFilter]);
+
   useEffect(() => {
     loadCategories();
-  }, [page, pageSize, searchQuery, statusFilter]);
+  }, [loadCategories]);
 
-  /* -------------------- Add Category Step 1 -------------------- */
+  /* --------------------------------
+     🔹 Add Category (Step 1)
+  -------------------------------- */
   const handleAddCategory = async () => {
     if (!formData.name.trim()) {
-      toast({ title: "Missing Name", description: "Enter category name", variant: "destructive" });
+      toast.error("Category name required");
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await CATEGORY_SERVICES.addCategory({
+      const res = await CATEGORY_SERVICES.addCategory({
         name: formData.name,
         thumbnail: "",
         status: "inactive",
       });
 
-      if (response.success) {
-        setNewCategoryId(response.data.id);
-        setFormData(prev => ({ ...prev, id: response.data.id }));
+      if (res.success) {
+        setNewCategoryId(res.data.id);
+        setFormData(prev => ({ ...prev, id: res.data.id }));
         setAddStep("complete");
-
-        toast({
-          title: "Category Created",
-          description: "Now upload image and set status",
-        });
+        toast.success("Category created. Continue setup.");
       }
-    } catch {
-      toast({ title: "Error", description: "Could not create category", variant: "destructive" });
     } finally {
       setIsLoading(false);
       loadCategories();
     }
   };
 
-  /* -------------------- Add Category Step 2 -------------------- */
+  /* --------------------------------
+     🔹 Add Category (Step 2)
+  -------------------------------- */
   const handleCompleteCategory = async () => {
     if (!newCategoryId) return;
     setIsLoading(true);
 
     try {
-      const response = await CATEGORY_SERVICES.updateCategory(newCategoryId, formData);
-
-      if (response.success) {
-        toast({ title: "Success", description: "Category updated." });
-        closeAddDialog();
-        loadCategories();
-      }
+      await CATEGORY_SERVICES.updateCategory(newCategoryId, formData);
+      toast.success("Category completed");
+      closeAddDialog();
+      loadCategories();
     } finally {
       setIsLoading(false);
     }
   };
 
-  /* -------------------- Edit Category -------------------- */
+  /* --------------------------------
+     🔹 Edit Category
+  -------------------------------- */
   const handleEditCategory = async () => {
     if (!selectedCategory) return;
 
     setIsLoading(true);
     try {
-      const response = await CATEGORY_SERVICES.updateCategory(selectedCategory.id, formData);
-
-      if (response.success) {
-        toast({ title: "Updated Successfully", description: "Category updated" });
-        closeEditDialog();
-        loadCategories();
-      }
+      await CATEGORY_SERVICES.updateCategory(selectedCategory.id, formData);
+      toast.success("Updated successfully");
+      closeEditDialog();
+      loadCategories();
     } finally {
       setIsLoading(false);
     }
   };
 
-  /* -------------------- Helpers -------------------- */
+  /* ---------- Utility ---------- */
+  const resetForm = () => {
+    setSelectedCategory(null);
+    setFormData({ id: "", name: "", thumbnail: "", status: "inactive" });
+    setAddStep("basic");
+    setNewCategoryId(null);
+  };
+
   const closeAddDialog = () => {
     resetForm();
     setIsAddDialogOpen(false);
@@ -152,14 +179,7 @@ export const CategoriesList = () => {
     setIsEditDialogOpen(false);
   };
 
-  const resetForm = () => {
-    setFormData({ id: "", name: "", thumbnail: "", status: "inactive" });
-    setSelectedCategory(null);
-    setAddStep("basic");
-    setNewCategoryId(null);
-  };
-
-   const openEditDialog = (category: Category) => {
+  const openEditDialog = (category: Category) => {
     setSelectedCategory(category);
     setFormData({
       id: category.id,
@@ -170,45 +190,44 @@ export const CategoriesList = () => {
     setIsEditDialogOpen(true);
   };
 
-
-  /* -------------------- Table UI -------------------- */
   const noResults = !isLoading && categories.length === 0;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
+  /* --------------------------------
+             🔹 UI
+  -------------------------------- */
   return (
-    <div className="container mx-auto py-10 px-4">
+    <div className="container mx-auto py-10 px-4 max-w-6xl">
       {/* Header */}
       <div className="flex justify-between mb-8">
         <h1 className="text-4xl font-bold">Categories</h1>
-        <Button onClick={() => setIsAddDialogOpen(true)} size="lg">
+        <Button size="lg" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </Button>
       </div>
 
-      {/* Search + Filter */}
+      {/* Search + Filters */}
       <div className="flex gap-4 mb-6">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Search categories..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1); // reset when searching
+            }}
             className="pl-10"
           />
         </div>
-        {/* <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search categories..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div> */}
 
         <select
           className="border rounded px-3 py-2"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
+          onChange={(e) => {
+            setStatusFilter(e.target.value as any);
+            setPage(1);
+          }}
         >
           <option value="">All</option>
           <option value="active">Active</option>
@@ -217,12 +236,11 @@ export const CategoriesList = () => {
       </div>
 
       {/* Table */}
-      <Table>
+      <Table className="">
         <TableHeader>
           <TableRow>
             <TableHead>Image</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead className="text-center">Products</TableHead>
             <TableHead className="text-center">Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -230,7 +248,7 @@ export const CategoriesList = () => {
 
         <TableBody>
           {isLoading && (
-            <TableRow>
+            <TableRow className="w-full flex items-center justify-center">
               <TableCell colSpan={5} className="text-center py-8">
                 <Loader2 className="animate-spin h-5 w-5" />
               </TableCell>
@@ -260,8 +278,6 @@ export const CategoriesList = () => {
 
                 <TableCell>{category.name}</TableCell>
 
-                <TableCell className="text-center">{category.productCount ?? 0}</TableCell>
-
                 <TableCell className="text-center">
                   <Badge variant={category.status === "active" ? "default" : "outline"}>
                     {category.status}
@@ -278,11 +294,11 @@ export const CategoriesList = () => {
         </TableBody>
       </Table>
 
-      {/* PAGINATION */}
+      {/* Pagination */}
       <div className="mt-6 flex justify-center">
         <Pagination
           currentPage={page}
-          totalPages={Math.ceil(totalItems / pageSize)}
+          totalPages={totalPages}
           totalItems={totalItems}
           pageSize={pageSize}
           onPageChange={setPage}
@@ -293,7 +309,8 @@ export const CategoriesList = () => {
         />
       </div>
 
-      <Dialog open={isAddDialogOpen} onOpenChange={(open) => !open && closeAddDialog()}>
+      {/* Add Category Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={(o) => !o && closeAddDialog()}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
@@ -301,16 +318,12 @@ export const CategoriesList = () => {
             </DialogTitle>
             <DialogDescription>
               {addStep === "basic"
-                ? "Enter basic category information"
-                : "Upload category image and set status"}
+                ? "Enter category details"
+                : "Upload image & set status"}
             </DialogDescription>
           </DialogHeader>
 
-          <CategoryFormFields
-            formData={formData}
-            setFormData={setFormData}
-            step={addStep}
-          />
+          <CategoryFormFields formData={formData} setFormData={setFormData} step={addStep} />
 
           <DialogFooter>
             <Button variant="outline" onClick={closeAddDialog}>
@@ -322,26 +335,22 @@ export const CategoriesList = () => {
               </Button>
             ) : (
               <Button onClick={handleCompleteCategory} disabled={isLoading}>
-                Complete Setup
+                Complete
               </Button>
             )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* EDIT CATEGORY DIALOG */}
-      <Dialog open={isEditDialogOpen} onOpenChange={(open) => !open && closeEditDialog()}>
+      {/* Edit Category Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={(o) => !o && closeEditDialog()}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
             <DialogDescription>Update category details</DialogDescription>
           </DialogHeader>
 
-          <CategoryFormFields
-            formData={formData}
-            setFormData={setFormData}
-            step="complete"
-          />
+          <CategoryFormFields formData={formData} setFormData={setFormData} step="complete" />
 
           <DialogFooter>
             <Button variant="outline" onClick={closeEditDialog}>
@@ -353,9 +362,8 @@ export const CategoriesList = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Add + Edit Dialogs remain unchanged */}
-      {/* ---- SAME AS YOUR CODE ---- */}
     </div>
   );
 };
+
+export default CategoriesList;

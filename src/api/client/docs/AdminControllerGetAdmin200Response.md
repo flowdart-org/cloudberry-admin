@@ -8,7 +8,6 @@ Name | Type | Description | Notes
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | [**AdminResponseDto**](AdminResponseDto.md) |  | [optional] [default to undefined]
-**accessToken** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -19,7 +18,6 @@ const instance: AdminControllerGetAdmin200Response = {
     success,
     message,
     data,
-    accessToken,
 };
 ```
 

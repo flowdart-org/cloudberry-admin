@@ -8,7 +8,6 @@ Name | Type | Description | Notes
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
 **data** | **object** |  | [optional] [default to undefined]
-**accessToken** | **string** |  | [optional] [default to undefined]
 **total** | **number** |  | [default to undefined]
 **limit** | **number** |  | [default to undefined]
 **page** | **number** |  | [default to undefined]
@@ -22,7 +21,6 @@ const instance: HttpPaginatedResponse = {
     success,
     message,
     data,
-    accessToken,
     total,
     limit,
     page,

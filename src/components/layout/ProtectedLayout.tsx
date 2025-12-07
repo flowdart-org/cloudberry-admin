@@ -13,7 +13,7 @@ const ProtectedLayout = () => {
         <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
         <Navbar isCollapsed={isCollapsed} />
   
-        <main
+        <main 
           className={cn(
             'pt-16 transition-all duration-300',
             isCollapsed ? 'ml-16' : 'ml-64'

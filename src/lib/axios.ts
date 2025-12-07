@@ -1,16 +1,19 @@
 import axios from "axios";
 import { ENV } from "./env";
-import { ApiResponse } from "@/types/common";
 import { useAuthStore } from "@/store/authStore";
 import {
   AdminApi,
+  AnalyticsApi,
   AuthApi,
   CategoryApi,
   Configuration,
+  LandingPageApi,
   MediaApi,
+  OrderApi,
   ProductApi,
   UserApi,
 } from "@/api/client";
+import { ApiResponse, PaginatedResponse } from "@/types/common";
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -88,19 +91,23 @@ api.interceptors.response.use(
 );
 
 export async function request<T>(
-  callback: any,
+  callback: (...args: any[]) => Promise<ApiResponse<ApiResponse<T> | PaginatedResponse<T>>>,
   ...props: any[]
-): Promise<ApiResponse<T>> {
+): Promise<ApiResponse<T> | PaginatedResponse<T>> {
   try {
-    const response = await callback(...props);
-    return response.data;
+    const {data: response} = await callback(...props);
+    return response;
   } catch (err: any) {
     return {
-      message: err?.response?.data?.message || err.message,
       success: false,
-    } as ApiResponse<T>;
+      message: err?.response?.data?.message || err.message || "Unknown error",
+      error: err?.response?.data || err,
+      data: undefined,
+    };
   }
 }
+
+
 
 export const authApi = new AuthApi(config, ENV.API_BASE_URL, api);
 export const adminApi = new AdminApi(config, ENV.API_BASE_URL, api);
@@ -108,39 +115,7 @@ export const userApi = new UserApi(config, ENV.API_BASE_URL, api);
 export const categoryApi = new CategoryApi(config, ENV.API_BASE_URL, api);
 export const productApi = new ProductApi(config, ENV.API_BASE_URL, api);
 export const mediaApi = new MediaApi(config, ENV.API_BASE_URL, api);
+export const orderApi = new OrderApi(config, ENV.API_BASE_URL, api);
+export const landingPageApi = new LandingPageApi(config, ENV.API_BASE_URL, api);
+export const analyticsApi = new AnalyticsApi(config, ENV.API_BASE_URL, api);
 
-type ParamsOf<T extends (...args: any) => any> = Parameters<T>;
-type ReturnOf<T extends (...args: any) => any> = Awaited<ReturnType<T>>;
-
-type ApiResponse<T> = { data: T; error: null } | { data: null; error: unknown };
-
-export function handleApi<TFn extends (...args: any[]) => any>(fn: TFn) {
-  return async (
-    ...args: ParamsOf<TFn>
-  ): Promise<ApiResponse<ReturnOf<TFn>>> => {
-    try {
-      const result = await fn(...args);
-      return { data: result as ReturnOf<TFn>, error: null };
-    } catch (error) {
-      return { data: null, error };
-    }
-  };
-}
-
-const loginApi = handleApi(authApi.authControllerAdminLogin);
-
-(async () => {
-  const { data, error } = await loginApi({
-    email: "23",
-    password: "32e2eeqw",
-  });
-
-  data.data.data
-
-  if (error) {
-    console.error("Login failed:", error);
-    return;
-  }
-
-  console.log("Login success:", data);
-})();

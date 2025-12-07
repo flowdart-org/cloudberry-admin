@@ -73,7 +73,7 @@ export const CategoryFormFields = ({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const fetchUploadUrl = async (file: File): Promise<string> => {
+  const fetchUploadUrl = async (file: File): Promise<{uploadUrl: string, readUrl: string}> => {
     try {
       const response = await MEDIA_SERVICES.getCategoryUploadUrl(formData.id, file);
       return response.data;
@@ -105,15 +105,15 @@ export const CategoryFormFields = ({
       setIsUploading(true);
       const croppedFile = new File([croppedBlob], selectedFile.name, { type: selectedFile.type });
 
-      const uploadUrl = await fetchUploadUrl(croppedFile);
-      if (!uploadUrl) throw new Error("Failed to get upload URL");
+      const response = await fetchUploadUrl(croppedFile);
+      if (!response.uploadUrl) throw new Error("Failed to get upload URL");
 
-      await MEDIA_SERVICES.uploadImage(uploadUrl, croppedFile);
-      const response = await CATEGORY_SERVICES.getCategory(formData.id);
+      await MEDIA_SERVICES.uploadImage(response.uploadUrl, croppedFile);
+      const {data} = await CATEGORY_SERVICES.getCategory(formData.id);
 
-      const publicUrl = uploadUrl.split('?')[0];
+      const publicUrl = response.readUrl.split('?')[0];
       
-      setFormData(response.data);
+      setFormData(data);
       
       toast({
         title: "Success",

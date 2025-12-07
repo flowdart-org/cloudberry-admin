@@ -1,4 +1,4 @@
-import { VariantDto, ProductImage } from "@/types/product.types";
+import { VariantDto } from "@/types/product.types";
 
 export interface CreateProductDTO {
   name: string;
@@ -10,7 +10,7 @@ export interface CreateProductDTO {
   status: "active" | "inactive";
   tryOn: boolean;
   tags?: string[];
-  images?: ProductImage[];
+  images?: string[];
   thumbnail?: string;
   variants?: string[ ];
 }
@@ -26,6 +26,6 @@ export interface updateProductDTO {
   tryOn?: boolean;
   tags?: string[];
   variants?: VariantDto[];
-  images?: ProductImage[];
+  images?: string[];
   thumbnail?: string;
 }

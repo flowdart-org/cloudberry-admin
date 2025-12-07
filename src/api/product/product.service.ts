@@ -1,7 +1,7 @@
 import { productApi, request } from "@/lib/axios";
-import { Product, ProductDetails } from "@/types/product.types";
+import { Product } from "@/types/product.types";
 import { updateProductDTO } from "./product.dto";
-import { ApiResponse } from "@/types/common";
+import { ApiResponse, PaginatedResponse } from "@/types/common";
 import { CreateProductDto } from "../client/api";
 
 
@@ -16,9 +16,8 @@ export const PRODUCT_SERVICES = {
     return response.data;
   },
 
-  getProducts: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive'): Promise<ApiResponse<ProductDetails[]>> => {
-    const response = await productApi.productControllerFind( page, limit, search, status);
-    return response.data;
+  getProducts: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive', category?: string): Promise<PaginatedResponse<Product[]>> => {
+    return await request(productApi.productControllerFind.bind(productApi), page, limit, search, status, category) as PaginatedResponse<Product[]>;
   },
 
 

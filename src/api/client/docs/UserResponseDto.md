@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **gender** | **string** | Gender of the user | [optional] [default to undefined]
 **tryOnImage** | **object** | URL of the user try-on image | [optional] [default to undefined]
 **tryOnLimit** | **number** | URL of the user try-on image | [optional] [default to undefined]
+**addresses** | [**Array&lt;AddressResponseDto&gt;**](AddressResponseDto.md) | List of user addresses | [default to undefined]
 **status** | **string** | Current status of the user account | [default to undefined]
 **joined** | **string** | Account creation timestamp | [default to undefined]
 
@@ -30,6 +31,7 @@ const instance: UserResponseDto = {
     gender,
     tryOnImage,
     tryOnLimit,
+    addresses,
     status,
     joined,
 };

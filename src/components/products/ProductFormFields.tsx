@@ -150,7 +150,7 @@ export const ProductFormFields = ({
         placeholder="Select category"
         // 👇 Shows category name even if only ID exists in formData
         defaultValue={
-          formData.categoryId
+          formData?.categoryId
             ? categories.find((c) => c.id === formData.categoryId)?.name
             : undefined
         }

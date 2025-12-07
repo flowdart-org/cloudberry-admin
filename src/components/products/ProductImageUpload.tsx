@@ -14,7 +14,7 @@ import { PRODUCT_SERVICES } from "@/api/product/product.service";
 interface ProductImageUploadProps {
   productId: string;
   onComplete: () => void;
-  existingImages?: string[]; // first index is thumbnail, rest are main images
+  existingImages?: string[];
 }
 
 export const ProductImageUpload = ({ productId, onComplete, existingImages = [] }: ProductImageUploadProps) => {
@@ -39,7 +39,7 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
   const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const MAX_IMAGES = 4; // Thumbnail + 4 images = 5 total
+  const MAX_IMAGES = 4;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, slotIndex: number) => {
     const file = e.target.files?.[0];
@@ -61,7 +61,7 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
     setCrop({
       unit: "%",
       width: 75,
-      aspect: 3 / 4,
+      height: 100,
       x: 12.5,
       y: 10,
     });
@@ -108,14 +108,14 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
 
       if (!response.data) throw new Error("Failed to get upload URL");
 
-      await MEDIA_SERVICES.uploadImage(response.data, croppedFile);
+      await MEDIA_SERVICES.uploadImage(response.data.uploadUrl, croppedFile);
 
       if (currentSlotIndex === 0) {
-        setThumbnail(response.data);
+        setThumbnail(response.data.readUrl);
       } else {
         setImages((prev) => {
           const updated = [...prev];
-          updated[currentSlotIndex - 1] = response.data;
+          updated[currentSlotIndex - 1] = response.data.readUrl;
           return updated;
         });
       }
@@ -182,12 +182,14 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
         ) : (
           <div
             onClick={() => document.getElementById(`file-${slotIndex}`)?.click()}
-            className="flex flex-col justify-center items-center w-full h-full cursor-pointer hover:bg-muted/50 transition"
+            className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors"
           >
             <Upload size={22} className="text-muted-foreground mb-1" />
-            <p className="text-xs text-muted-foreground text-center">
-              {isThumbnail ? "Upload Thumbnail" : `Image ${slotIndex}`}
-            </p>
+                <p className="text-sm font-medium mb-1">{isThumbnail ? "Upload Thumbnail" : `Image ${slotIndex}`}</p>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Recommended: 3:4 aspect ratio (e.g., 600x800px)
+                </p>
+
             <input id={`file-${slotIndex}`} type="file" accept="image/*" hidden onChange={(e) => handleFileSelect(e, slotIndex)} />
           </div>
         )}
@@ -218,7 +220,7 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
       </Card>
 
       <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
-        <DialogContent className="max-w-3xl">
+        {/* <DialogContent className="max-w-3xl overflow-y-auto h-screen">
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>
             <DialogDescription>Use the crop tool to adjust framing.</DialogDescription>
@@ -227,15 +229,78 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
           {imageToCrop && (
             <div className="flex justify-center py-4">
               <ReactCrop crop={crop} onChange={setCrop} onComplete={setCompletedCrop} aspect={3 / 4}>
-                <img ref={imgRef} src={imageToCrop} onLoad={onImageLoad} className="max-h-[500px]" />
+                <img ref={imgRef} src={imageToCrop} onLoad={onImageLoad} style={{ maxHeight: "400px" }} />
               </ReactCrop>
             </div>
           )}
+
+          {/* <div className="flex justify-center">
+            {imageToCrop && (
+              <ReactCrop
+                crop={crop}
+                onChange={(newCrop) => setCrop(newCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={3 / 4}
+              >
+                <img
+                  ref={imgRef}
+                  src={imageToCrop}
+                  alt="Crop preview"
+                  style={{ maxHeight: "400px" }}
+                />
+              </ReactCrop>
+            )}
+          </div> 
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCropDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleCropConfirm} disabled={uploading}>
               <Crop size={16} className="mr-2" /> {uploading ? "Uploading..." : "Crop & Upload"}
+            </Button>
+          </DialogFooter>
+        </DialogContent> */}
+
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Crop Image</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex justify-center">
+            {imageToCrop && (
+              <ReactCrop
+                crop={crop}
+                onChange={(newCrop) => setCrop(newCrop)}
+                onComplete={(c) => setCompletedCrop(c)}
+                aspect={3 / 4}
+              >
+                <img
+                  ref={imgRef}
+                  src={imageToCrop}
+                  alt="Crop preview"
+                  style={{ maxHeight: "400px" }}
+                />
+              </ReactCrop>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsCropDialogOpen(false);
+                setImageToCrop("");
+                setCompletedCrop(null);
+                setSelectedFile(null);
+              }}
+              // disabled={isUploading}
+            >
+              Close
+            </Button>
+            <Button
+              onClick={handleCropConfirm}
+              // disabled={isUploading}
+            >
+              "Save & Uploa"
             </Button>
           </DialogFooter>
         </DialogContent>
