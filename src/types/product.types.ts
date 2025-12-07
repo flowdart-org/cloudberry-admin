@@ -20,6 +20,7 @@ export interface ProductDetails {
   price: number;
   variants: VariantDto[];
   discountPercent: number;
+  discountPrice: number;
   categoryId?: string;
   category?: {
     name: string;
@@ -33,6 +34,7 @@ export interface ProductDetails {
 }
 
 export interface VariantDto {
+  id: string;
   size: string;
   stock: number;
 }

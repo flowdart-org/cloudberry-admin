@@ -4,13 +4,13 @@ All URIs are relative to *http://api.dev.cloudberrytryon.com*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**orderControllerFindAll**](#ordercontrollerfindall) | **GET** /api/order | |
-|[**orderControllerFindAllByUser**](#ordercontrollerfindallbyuser) | **GET** /api/order/user | |
+|[**orderControllerFindAll**](#ordercontrollerfindall) | **GET** /api/order/admin | |
+|[**orderControllerFindAllByUser**](#ordercontrollerfindallbyuser) | **GET** /api/order | |
 |[**orderControllerFindOne**](#ordercontrollerfindone) | **GET** /api/order/{id} | |
 |[**orderControllerUpdate**](#ordercontrollerupdate) | **PATCH** /api/order/{id} | |
 
 # **orderControllerFindAll**
-> OrderControllerFindAll200Response orderControllerFindAll()
+> OrderControllerFindAllByUser200Response orderControllerFindAll()
 
 
 ### Example
@@ -58,7 +58,7 @@ const { status, data } = await apiInstance.orderControllerFindAll(
 
 ### Return type
 
-**OrderControllerFindAll200Response**
+**OrderControllerFindAllByUser200Response**
 
 ### Authorization
 
@@ -78,7 +78,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **orderControllerFindAllByUser**
-> OrderControllerFindAll200Response orderControllerFindAllByUser()
+> OrderControllerFindAllByUser200Response orderControllerFindAllByUser()
 
 
 ### Example
@@ -126,7 +126,7 @@ const { status, data } = await apiInstance.orderControllerFindAllByUser(
 
 ### Return type
 
-**OrderControllerFindAll200Response**
+**OrderControllerFindAllByUser200Response**
 
 ### Authorization
 

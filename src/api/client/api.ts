@@ -380,7 +380,7 @@ export interface MediaControllerGetCategoryUploadUrl200Response {
     'message': string;
     'data'?: UploadMediaResponseDto;
 }
-export interface OrderControllerFindAll200Response {
+export interface OrderControllerFindAllByUser200Response {
     'success': boolean;
     'message': string;
     'data'?: Array<OrderResponseDto>;
@@ -2636,7 +2636,7 @@ export const OrderApiAxiosParamCreator = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         orderControllerFindAll: async (page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/order`;
+            const localVarPath = `/api/order/admin`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2700,7 +2700,7 @@ export const OrderApiAxiosParamCreator = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         orderControllerFindAllByUser: async (page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/order/user`;
+            const localVarPath = `/api/order`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2844,7 +2844,7 @@ export const OrderApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async orderControllerFindAll(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderControllerFindAll200Response>> {
+        async orderControllerFindAll(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderControllerFindAllByUser200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.orderControllerFindAll(page, limit, search, orderStatus, paymentStatus, startDate, endDate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrderApi.orderControllerFindAll']?.[localVarOperationServerIndex]?.url;
@@ -2862,7 +2862,7 @@ export const OrderApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async orderControllerFindAllByUser(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderControllerFindAll200Response>> {
+        async orderControllerFindAllByUser(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderControllerFindAllByUser200Response>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.orderControllerFindAllByUser(page, limit, search, orderStatus, paymentStatus, startDate, endDate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrderApi.orderControllerFindAllByUser']?.[localVarOperationServerIndex]?.url;
@@ -2914,7 +2914,7 @@ export const OrderApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        orderControllerFindAll(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderControllerFindAll200Response> {
+        orderControllerFindAll(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderControllerFindAllByUser200Response> {
             return localVarFp.orderControllerFindAll(page, limit, search, orderStatus, paymentStatus, startDate, endDate, options).then((request) => request(axios, basePath));
         },
         /**
@@ -2929,7 +2929,7 @@ export const OrderApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        orderControllerFindAllByUser(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderControllerFindAll200Response> {
+        orderControllerFindAllByUser(page?: number, limit?: number, search?: string, orderStatus?: string, paymentStatus?: string, startDate?: string, endDate?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderControllerFindAllByUser200Response> {
             return localVarFp.orderControllerFindAllByUser(page, limit, search, orderStatus, paymentStatus, startDate, endDate, options).then((request) => request(axios, basePath));
         },
         /**

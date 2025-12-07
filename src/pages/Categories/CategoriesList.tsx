@@ -79,7 +79,7 @@ const CategoriesList = () => {
         statusFilter || undefined
       );
 
-      if (requestId !== requestRef.current) return; // stale safeguard
+      if (requestId !== requestRef.current) return; 
 
       if (response.success) {
         setCategories(response.data ?? []);

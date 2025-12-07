@@ -13,11 +13,11 @@ interface ProductFormProps {
   initialData?: ProductDetails ;
   onSuccess?: (product?: Product) => void ;
   onCancel?: () => void;
+  categories: Category[]
 }
 
-export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormProps) => {
+export const ProductForm = ({ initialData, onSuccess, onCancel, categories }: ProductFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState(initialData ? {
     name: initialData?.name || "",
@@ -45,17 +45,7 @@ export const ProductForm = ({ initialData, onSuccess, onCancel }: ProductFormPro
   const [newTag, setNewTag] = useState("");
   const [newVariant, setNewVariant] = useState<VariantDto>({ size: "", stock: 0 });
 
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const response = await CATEGORY_SERVICES.getCategories();
-        setCategories(response.data);
-      } catch (error) {
-        toast.error("Failed to load categories");
-      }
-    };
-    loadCategories();
-  }, []);
+  
 
   const calculateDiscountPrice = (actualPrice: number, discountPercent: number): number => {
     if (discountPercent < 0 || discountPercent > 100) return actualPrice;

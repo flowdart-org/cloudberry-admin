@@ -24,6 +24,7 @@ import { TableCell, TableHead } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { ROUTES } from "@/config/routes.config";
 import { useNavigate } from "react-router-dom";
+import { Category } from "@/types/category.types";
 
 // 🔹 Small reusable debounce hook for performance
 function useDebouncedValue<T>(value: T, delay = 400): T {
@@ -39,7 +40,7 @@ function useDebouncedValue<T>(value: T, delay = 400): T {
 
 export default function Products() {
   const [products, setProducts] = useState<ProductDetails[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate()
@@ -67,7 +68,7 @@ export default function Products() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await CATEGORY_SERVICES.getCategories(1);
+      const res = await CATEGORY_SERVICES.getCategories();
       setCategories(res.data || []);
     } catch {
       toast.error("Failed to load categories");
@@ -354,6 +355,7 @@ export default function Products() {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto p-0">
           {!createdProductId ? (
             <ProductForm
+              categories={categories}
               onSuccess={handleSuccess}
               onCancel={() => setIsAddDialogOpen(false)}
             />
@@ -376,6 +378,7 @@ export default function Products() {
           {!showImageUpload ? (
             currentProduct && (
               <ProductForm
+              categories={categories}
                 initialData={currentProduct}
                 onSuccess={handleEditSuccess}
                 onCancel={() => {

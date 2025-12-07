@@ -111,9 +111,8 @@ export const CategoryFormFields = ({
       await MEDIA_SERVICES.uploadImage(response.uploadUrl, croppedFile);
       const {data} = await CATEGORY_SERVICES.getCategory(formData.id);
 
-      const publicUrl = response.readUrl.split('?')[0];
+      setFormData(prev => ({ ...prev, thumbnail: data.thumbnail }))
       
-      setFormData(data);
       
       toast({
         title: "Success",

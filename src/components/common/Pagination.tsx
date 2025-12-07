@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -49,14 +49,6 @@ export const Pagination = ({
         </div>
 
         <div className="flex items-center gap-1">
-          {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onPageChange(1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button> */}
           <Button
             variant="ghost"
             size="icon"
@@ -78,14 +70,6 @@ export const Pagination = ({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-            {/* <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onPageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>  */}
         </div>
       </div>
     </div>

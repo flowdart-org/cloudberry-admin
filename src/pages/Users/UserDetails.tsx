@@ -110,7 +110,7 @@ const UserDetails = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           {user?.status ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -140,7 +140,7 @@ const UserDetails = () => {
               Active User
             </Button>
           )}
-        </div>
+        </div> */}
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">

@@ -46,7 +46,7 @@ docs/LoginVerifyOTPDto.md
 docs/MediaApi.md
 docs/MediaControllerGetCategoryUploadUrl200Response.md
 docs/OrderApi.md
-docs/OrderControllerFindAll200Response.md
+docs/OrderControllerFindAllByUser200Response.md
 docs/OrderControllerFindOne200Response.md
 docs/OrderItemDto.md
 docs/OrderResponseDto.md
