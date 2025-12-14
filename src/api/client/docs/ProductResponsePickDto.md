@@ -1,4 +1,4 @@
-# ProductResponseDto
+# ProductResponsePickDto
 
 
 ## Properties
@@ -7,37 +7,25 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Unique identifier for the product | [default to undefined]
 **name** | **string** | Name of the product | [default to undefined]
-**description** | **string** | Description of the product | [default to undefined]
 **price** | **number** | Actual price of the product | [default to undefined]
 **discountPrice** | **number** | Discounted price of the product | [optional] [default to undefined]
 **discountPercent** | **number** | Discount percentage of the product | [optional] [default to undefined]
 **thumbnail** | **string** | Product thumbnail URL | [optional] [default to undefined]
-**images** | **Array&lt;string&gt;** | Array of image URLs for the product | [default to undefined]
-**variants** | **Array&lt;string&gt;** | Array of product variants with size and stock information | [default to undefined]
 **category** | [**CategoryResponsePickDto**](CategoryResponsePickDto.md) | Category details of the product (optional) | [default to undefined]
-**tryOn** | **boolean** | Whether the product supports virtual try-on | [default to undefined]
-**status** | **string** | Current product status | [default to undefined]
-**createdAt** | **string** | Timestamp when the product was created | [default to undefined]
 
 ## Example
 
 ```typescript
-import { ProductResponseDto } from './api';
+import { ProductResponsePickDto } from './api';
 
-const instance: ProductResponseDto = {
+const instance: ProductResponsePickDto = {
     id,
     name,
-    description,
     price,
     discountPrice,
     discountPercent,
     thumbnail,
-    images,
-    variants,
     category,
-    tryOn,
-    status,
-    createdAt,
 };
 ```
 

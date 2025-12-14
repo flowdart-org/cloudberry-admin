@@ -7,8 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Unique identifier for the cart item | [default to undefined]
 **quantity** | **number** | Quantity of the product in the cart item | [default to undefined]
-**product** | [**CartItemResponseDtoProduct**](CartItemResponseDtoProduct.md) |  | [default to undefined]
-**variant** | [**CartItemResponseDtoVariant**](CartItemResponseDtoVariant.md) |  | [default to undefined]
+**product** | [**ProductResponsePickDto**](ProductResponsePickDto.md) | Details of the product in the cart item | [default to undefined]
+**variant** | [**ProductVariantResponseDto**](ProductVariantResponseDto.md) | Details of the product variant in the cart item | [default to undefined]
 
 ## Example
 

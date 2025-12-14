@@ -15,7 +15,7 @@ const PublicRoute = () => {
         Loading...
       </div>
     );
-  }
+  } 
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;

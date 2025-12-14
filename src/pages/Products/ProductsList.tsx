@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, MoreVertical, Eye, CheckCircle } from "lucide-react";
+import { Plus, Search, Pencil, MoreVertical, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Product, ProductDetails } from "@/types/product.types";
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
-import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { ProductForm } from "@/components/products/ProductForm";
 import { ProductImageUpload } from "@/components/products/ProductImageUpload";
 import { Pagination } from "@/components/common/Pagination";
@@ -25,8 +24,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ROUTES } from "@/config/routes.config";
 import { useNavigate } from "react-router-dom";
 import { Category } from "@/types/category.types";
+import { useCategoryStore } from "@/store/useCategoryStore";
 
-// 🔹 Small reusable debounce hook for performance
 function useDebouncedValue<T>(value: T, delay = 400): T {
   const [debounced, setDebounced] = useState(value);
 
@@ -40,11 +39,12 @@ function useDebouncedValue<T>(value: T, delay = 400): T {
 
 export default function Products() {
   const [products, setProducts] = useState<ProductDetails[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // const [categories, setCategories] = useState<Category[]>([]);
+  const {categories} = useCategoryStore()
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate()
-  // filters
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -67,12 +67,12 @@ export default function Products() {
   const fetchIdRef = useRef(0);
 
   const fetchCategories = useCallback(async () => {
-    try {
-      const res = await CATEGORY_SERVICES.getCategories();
-      setCategories(res.data || []);
-    } catch {
-      toast.error("Failed to load categories");
-    }
+    // try {
+    //   const res = await CATEGORY_SERVICES.getCategories();
+    //   setCategories(res.data || []);
+    // } catch {
+    //   toast.error("Failed to load categories");
+    // }
   }, []);
 
   const fetchProducts = useCallback(async () => {
@@ -175,8 +175,9 @@ export default function Products() {
           <Select
             value={categoryFilter}
             onValueChange={(v) => {
+              console.log(v, 'its v')
               setCategoryFilter(v);
-              setPage(1); // reset page on filter change
+              setPage(1);
             }}
           >
             <SelectTrigger>

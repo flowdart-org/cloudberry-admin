@@ -220,46 +220,6 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
       </Card>
 
       <Dialog open={isCropDialogOpen} onOpenChange={setIsCropDialogOpen}>
-        {/* <DialogContent className="max-w-3xl overflow-y-auto h-screen">
-          <DialogHeader>
-            <DialogTitle>Crop Image</DialogTitle>
-            <DialogDescription>Use the crop tool to adjust framing.</DialogDescription>
-          </DialogHeader>
-
-          {imageToCrop && (
-            <div className="flex justify-center py-4">
-              <ReactCrop crop={crop} onChange={setCrop} onComplete={setCompletedCrop} aspect={3 / 4}>
-                <img ref={imgRef} src={imageToCrop} onLoad={onImageLoad} style={{ maxHeight: "400px" }} />
-              </ReactCrop>
-            </div>
-          )}
-
-          {/* <div className="flex justify-center">
-            {imageToCrop && (
-              <ReactCrop
-                crop={crop}
-                onChange={(newCrop) => setCrop(newCrop)}
-                onComplete={(c) => setCompletedCrop(c)}
-                aspect={3 / 4}
-              >
-                <img
-                  ref={imgRef}
-                  src={imageToCrop}
-                  alt="Crop preview"
-                  style={{ maxHeight: "400px" }}
-                />
-              </ReactCrop>
-            )}
-          </div> 
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCropDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCropConfirm} disabled={uploading}>
-              <Crop size={16} className="mr-2" /> {uploading ? "Uploading..." : "Crop & Upload"}
-            </Button>
-          </DialogFooter>
-        </DialogContent> */}
-
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Crop Image</DialogTitle>

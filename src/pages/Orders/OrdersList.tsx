@@ -61,10 +61,11 @@ const OrdersList = () => {
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="paid">Paid</SelectItem>
-            <SelectItem value="shipped">Shipped</SelectItem>
+            <SelectItem value="shipping">Shipping</SelectItem>
             <SelectItem value="delivered">Delivered</SelectItem>
             <SelectItem value="canceled">Canceled</SelectItem>
+            <SelectItem value="return-request">Return Requests</SelectItem>
+            <SelectItem value="returned">Returned</SelectItem>
           </SelectContent>
         </Select>
 

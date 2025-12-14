@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **success** | **boolean** |  | [default to undefined]
 **message** | **string** |  | [default to undefined]
-**data** | **object** |  | [optional] [default to undefined]
+**data** | [**CategoryResponseDto**](CategoryResponseDto.md) |  | [optional] [default to undefined]
 
 ## Example
 

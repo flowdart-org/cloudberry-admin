@@ -15,7 +15,7 @@ export const CATEGORY_SERVICES = {
   },
 
   getCategories: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive'): Promise<PaginatedResponse<Category[]>> => {
-    return await request(categoryApi.categoryControllerFindAll.bind(categoryApi), page, limit, search, status) as PaginatedResponse<Category[]>;
+    return await request(categoryApi.categoryControllerFindAll.bind(categoryApi), 1, 1000, search, status) as PaginatedResponse<Category[]>;
   }, 
 
   updateCategory: async (

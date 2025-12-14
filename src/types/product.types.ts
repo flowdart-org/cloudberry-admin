@@ -34,9 +34,10 @@ export interface ProductDetails {
 }
 
 export interface VariantDto {
-  id: string;
+  id?: string;
   size: string;
   stock: number;
+  isDeleted: boolean
 }
 
 

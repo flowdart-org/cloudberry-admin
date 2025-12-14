@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
+import { useState } from "react";
 import { Category } from "@/types/category.types";
 import { ProductDetails, VariantDto } from "@/types/product.types";
 
@@ -31,12 +32,6 @@ export const ProductFormFields = ({
   categories,
 }: ProductFormFieldsProps) => {
   if(!formData) return <p>no form data</p>
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData({ ...formData, tags: [...formData.tags, newTag.trim()] });
-      setNewTag("");
-    }
-  };
 
   const removeTag = (tag: string) => {
     setFormData({ ...formData, tags: formData.tags.filter((t) => t !== tag) });
@@ -44,13 +39,65 @@ export const ProductFormFields = ({
 
   const addVariant = () => {
     if (newVariant.size.trim() && newVariant.stock >= 0) {
-      setFormData({ ...formData, variants: [...formData.variants, { ...newVariant }] });
-      setNewVariant({ size: "", stock: 0 });
+      // new variants should include flags the backend understands: isDelete=false and editCount=0
+      setFormData({
+        ...formData,
+        variants: [...formData.variants, { ...newVariant, isDelete: false, editCount: 0 } as any],
+      });
+      setNewVariant({ size: "", stock: 0, isDeleted: false });
     }
   };
 
   const removeVariant = (index: number) => {
-    setFormData({ ...formData, variants: formData.variants.filter((_, i) => i !== index) });
+    const variants = [...formData.variants];
+    const v = variants[index];
+    if (!v) return;
+
+    // If the variant has an `id`, treat removal as a soft-delete (mark isDelete=true)
+    if ((v as VariantDto).id) {
+      variants[index] = { ...v, isDeleted: true } as VariantDto;
+      setFormData({ ...formData, variants });
+    } else {
+      // New variant not yet persisted — remove from array
+      setFormData({ ...formData, variants: variants.filter((_, i) => i !== index) });
+    }
+  };
+
+  // Inline edit state for variants
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingVariant, setEditingVariant] = useState<any>(null);
+
+  const startEditVariant = (index: number) => {
+    const v = formData.variants[index];
+    setEditingIndex(index);
+    setEditingVariant({ ...v });
+  };
+
+  const cancelEditVariant = () => {
+    setEditingIndex(null);
+    setEditingVariant(null);
+  };
+
+  const saveEditVariant = (index: number) => {
+    if (!editingVariant) return;
+    const variants = [...formData.variants];
+    const existing = variants[index] || {};
+
+    // increment editCount for existing variants
+    // const prevCount = typeof existing.editCount === "number" ? existing.editCount : 0;
+    variants[index] = { ...existing, ...editingVariant } as VariantDto;
+    setFormData({ ...formData, variants });
+
+    setEditingIndex(null);
+    setEditingVariant(null);
+  };
+
+  const toggleUndelete = (index: number) => {
+    const variants = [...formData.variants];
+    const v = variants[index];
+    if (!v) return;
+    variants[index] = { ...v, isDeleted: !(v as VariantDto).isDeleted } as VariantDto;
+    setFormData({ ...formData, variants });
   };
 
   return (
@@ -201,20 +248,6 @@ export const ProductFormFields = ({
       </div>
     
     <div className="space-y-4">
-        {/* <h3 className="text-lg font-semibold">Tags</h3>
-        
-        <div className="flex gap-2">
-          <Input
-            placeholder="Add a tag"
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-          />
-          <Button type="button" onClick={addTag} size="icon" variant="outline">
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div> */}
-
         {formData?.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {formData.tags.map((tag) => (
@@ -258,21 +291,61 @@ export const ProductFormFields = ({
 
         {formData.variants.length > 0 && (
           <div className="space-y-2">
-            {formData.variants.map((variant, index) => (
-              <div key={index} className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <span className="font-medium">{variant.size}</span>
-                  <span className="ml-4 text-sm text-muted-foreground">Stock: {variant.stock}</span>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeVariant(index)}
-                  className="h-8 w-8"
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+            {formData.variants.map((variant: VariantDto, index: number) => (
+              <div
+                key={index}
+                className={`flex items-center justify-between rounded-lg border p-3 ${variant.isDeleted ? 'opacity-50 line-through' : ''}`}
+              >
+                {/* Display mode (not editing) */}
+                {editingIndex !== index ? (
+                  <>
+                    <div>
+                      <span className="font-medium">{variant.size}</span>
+                      <span className="ml-4 text-sm text-muted-foreground">Stock: {variant.stock}</span>
+                      {/* {variant.editCount ? (
+                        <span className="ml-3 text-xs text-muted-foreground">(edits: {variant.editCount})</span>
+                      ) : null} */}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {variant.isDeleted ? (
+                        <Button type="button" size="sm" variant="outline" onClick={() => toggleUndelete(index)}>Undo</Button>
+                      ) : (
+                        <>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => startEditVariant(index)}>Edit</Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeVariant(index)}
+                            className="h-8 w-8"
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  /* Editing mode */
+                  <div className="w-full flex items-center justify-between gap-2">
+                    <div className="flex-1 flex gap-2">
+                      <div className="w-full items-center my-auto h-full flex"><p>{editingVariant?.size ?? ''}</p></div>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={editingVariant?.stock ?? 0}
+                        onChange={(e) => setEditingVariant({ ...editingVariant, stock: parseInt(e.target.value) || 0 })}
+                        className="w-32"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="sm" variant="outline" onClick={cancelEditVariant}><X className="h-3 w-3" /></Button>
+                      <Button type="button" size="sm" onClick={() => saveEditVariant(index)}>Save</Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

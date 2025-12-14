@@ -23,6 +23,8 @@ export const useAuthStore = create<AuthState>()(
                         const { success, data: user } = await USER_SERVICES.me()
                         if (success && user) {
                             set({ user, isAuthenticated: true })
+                        } else {
+                            get().logout()
                         }
                     }
                 } catch (error: any) {
@@ -38,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
                 const { success } = await refreshTokenApi()
                 if (!success) {
                     get().logout()
-                    set({ isLoading: false })
+                    set({ isLoading: false, isAuthenticated: false })
                     return false
                 }
                 set({ isLoading: false })
@@ -47,11 +49,8 @@ export const useAuthStore = create<AuthState>()(
 
             logout: async () => {
                 set({ isLoading: true })
-                const { success } = await logoutApi()
-                if (success) {
-                    set({ user: null, isAuthenticated: false })
-                }
-                set({ isLoading: false })
+                await logoutApi()
+                set({ user: null, isAuthenticated: false, isLoading: false  })
             },
 
             setUser: (userUpdate) =>

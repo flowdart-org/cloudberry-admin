@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Product, ProductDetails, VariantDto } from "@/types/product.types";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { Category } from "@/types/category.types";
 
@@ -40,10 +39,9 @@ export const ProductForm = ({ initialData, onSuccess, onCancel, categories }: Pr
     tags: [],
     variants: []
   });
-  console.log(formData, 'from product form')
 
   const [newTag, setNewTag] = useState("");
-  const [newVariant, setNewVariant] = useState<VariantDto>({ size: "", stock: 0 });
+  const [newVariant, setNewVariant] = useState<VariantDto>({ size: "", stock: 0, isDeleted: false });
 
   
 

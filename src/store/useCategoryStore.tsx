@@ -1,36 +1,34 @@
 import { create } from "zustand";
+import { CATEGORY_SERVICES } from "@/api/category/category.service";
+import { Category } from "@/types/category.types";
 
-interface CategoryFilters {
-  page: number;
-  limit: number;
-  search: string;
-  status: "all" | "active" | "inactive";
-}
-
-interface CategoryStore extends CategoryFilters {
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
-  setSearch: (value: string) => void;
-  setStatus: (value: "all" | "active" | "inactive") => void;
+interface CategoryStore {
+  categories: Category[];
+  loading: boolean;
+  error: string | null;
+  fetchAll: () => Promise<void>;
+  setCategories: (categories: Category[]) => void;
   reset: () => void;
 }
 
 export const useCategoryStore = create<CategoryStore>((set) => ({
-  page: 1,
-  limit: 10,
-  search: "",
-  status: "all",
+  categories: [],
+  loading: false,
+  error: null,
 
-  setPage: (page) => set({ page }),
-  setLimit: (limit) => set({ limit }),
-  setSearch: (search) => set({ search, page: 1 }),
-  setStatus: (status) => set({ status, page: 1 }),
+  fetchAll: async () => {
+    set({ loading: true, error: null });
+    try {
+      const resp = await CATEGORY_SERVICES.getCategories();
 
-  reset: () =>
-    set({
-      page: 1,
-      limit: 10,
-      search: "",
-      status: "all",
-    }),
+      let categories: Category[] = resp.data;
+      set({ categories, loading: false });
+    } catch (err: any) {
+      set({ error: err?.message ?? "Failed to fetch categories", loading: false });
+    }
+  },
+
+  setCategories: (categories) => set({ categories }),
+
+  reset: () => set({ categories: [], loading: false, error: null }),
 }));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Category } from "@/types/category.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { Plus, Search, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { Pagination } from "@/components/common/Pagination";
+import { useCategoryStore } from "@/store/useCategoryStore";
 
 /* --------------------------------
    🔹 Debounce Hook (shared pattern)
@@ -34,17 +35,15 @@ function useDebouncedValue<T>(value: T, delay = 400): T {
 
 const CategoriesList = () => {
   /* ---------- State ---------- */
-  const [categories, setCategories] = useState<Category[]>([]);
+  // categories are now provided by the central store
+  const { categories, loading: storeLoading, fetchAll } = useCategoryStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "">("");
 
   // Debounced Search
   const debouncedSearch = useDebouncedValue(searchQuery, 400);
 
-  // Pagination
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
+
 
   // UI state
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -63,40 +62,20 @@ const CategoriesList = () => {
 
   // Prevents outdated API response updating UI
   const requestRef = useRef(0);
-
-  /* --------------------------------
-     🔹 Fetch Categories (Optimized)
-  -------------------------------- */
-  const loadCategories = useCallback(async () => {
-    setIsLoading(true);
-    const requestId = ++requestRef.current;
-
-    try {
-      const response = await CATEGORY_SERVICES.getCategories(
-        page,
-        pageSize,
-        debouncedSearch,
-        statusFilter || undefined
-      );
-
-      if (requestId !== requestRef.current) return; 
-
-      if (response.success) {
-        setCategories(response.data ?? []);
-        setTotalItems(response.total ?? 0);
-      }
-    } catch {
-      toast.error("Failed to load categories");
-    } finally {
-      if (requestId === requestRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [page, pageSize, debouncedSearch, statusFilter]);
-
+  // Load all categories from store on mount
   useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
+    fetchAll().catch(() => toast.error("Failed to load categories"));
+  }, [fetchAll]);
+
+  // Client-side filtered list based on search + status
+  const filteredCategories = useMemo(() => {
+    const q = debouncedSearch.trim().toLowerCase();
+    return categories.filter((c) => {
+      const matchesSearch = q === "" || c.name.toLowerCase().includes(q);
+      const matchesStatus = !statusFilter || !statusFilter ? true : c.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [categories, debouncedSearch, statusFilter]);
 
   /* --------------------------------
      🔹 Add Category (Step 1)
@@ -123,7 +102,7 @@ const CategoriesList = () => {
       }
     } finally {
       setIsLoading(false);
-      loadCategories();
+      // loadCategories();
     }
   };
 
@@ -138,7 +117,7 @@ const CategoriesList = () => {
       await CATEGORY_SERVICES.updateCategory(newCategoryId, formData);
       toast.success("Category completed");
       closeAddDialog();
-      loadCategories();
+      await fetchAll();
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +134,7 @@ const CategoriesList = () => {
       await CATEGORY_SERVICES.updateCategory(selectedCategory.id, formData);
       toast.success("Updated successfully");
       closeEditDialog();
-      loadCategories();
+      await fetchAll();
     } finally {
       setIsLoading(false);
     }
@@ -190,8 +169,8 @@ const CategoriesList = () => {
     setIsEditDialogOpen(true);
   };
 
-  const noResults = !isLoading && categories.length === 0;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const tableLoading = storeLoading || isLoading;
+  const noResults = !tableLoading && filteredCategories.length === 0;
 
   /* --------------------------------
              🔹 UI
@@ -215,7 +194,6 @@ const CategoriesList = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setPage(1); // reset when searching
             }}
             className="pl-10"
           />
@@ -226,7 +204,6 @@ const CategoriesList = () => {
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value as any);
-            setPage(1);
           }}
         >
           <option value="">All</option>
@@ -247,7 +224,7 @@ const CategoriesList = () => {
         </TableHeader>
 
         <TableBody>
-          {isLoading && (
+          {tableLoading && (
             <TableRow className="w-full flex items-center justify-center">
               <TableCell colSpan={5} className="text-center py-8">
                 <Loader2 className="animate-spin h-5 w-5" />
@@ -263,7 +240,7 @@ const CategoriesList = () => {
             </TableRow>
           )}
 
-          {!isLoading &&
+          {!tableLoading &&
             categories.map((category) => (
               <TableRow key={category.id}>
                 <TableCell>
@@ -295,7 +272,7 @@ const CategoriesList = () => {
       </Table>
 
       {/* Pagination */}
-      <div className="mt-6 flex justify-center">
+      {/* <div className="mt-6 flex justify-center">
         <Pagination
           currentPage={page}
           totalPages={totalPages}
@@ -307,7 +284,7 @@ const CategoriesList = () => {
             setPage(1);
           }}
         />
-      </div>
+      </div> */}
 
       {/* Add Category Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={(o) => !o && closeAddDialog()}>

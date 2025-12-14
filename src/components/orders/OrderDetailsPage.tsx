@@ -13,11 +13,12 @@ import { formatDate } from "@/utils/formatDate";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 import { PaymentStatusBadge } from "./PaymentStatusBadge";
 import { ORDER_SERVICES } from "@/api/order/order.service";
+import { toast } from "@/hooks/use-toast";
 
 const ORDER_STATUS_OPTIONS = [
   "pending",
   "processing",
-  "shipped",
+  "shipping",
   "delivered",
   "cancelled",
 ];
@@ -35,78 +36,21 @@ export default function OrderDetailsPage() {
     const fetchOrder = async () => {
       const res = await ORDER_SERVICES.getOrder(id!);
       setOrder(res.data);
-      // MOCK for now:
-//       setOrder({
-//   id: "ord_91f2ab9d8f",
-//   orderNumber: "ORD-2025-00012",
-//   customer: {
-//     id: "cus_91482ghs",
-//     name: "Ajmal T A",
-//     email: "ajmal@example.com",
-//     phone: "+91 9876543210",
-//     address: {
-//       street: "23/144 A, Skyline Apartments",
-//       city: "Kochi",
-//       state: "Kerala",
-//       postalCode: "682304",
-//       country: "India"
-//     }
-//   },
-//   placedAt: "2025-11-27T10:15:00.000Z",
-//   updatedAt: "2025-11-28T14:22:00.000Z",
-//   deliveredAt: null,
-//   cancelledAt: null,
-
-//   subtotal: 1680,
-//   shippingCharge: 50,
-//   discount: 200,
-//   total: 1530,
-
-//   paymentMethod: {
-//     method: "ONLINE",
-//     provider: "Razorpay",
-//     transactionId: "txn_88421dd93",
-//     amountPaid: 1530
-//   },
-
-//   paymentStatus: "paid", // other options: UNPAID | FAILED | REFUNDED
-//   orderStatus: "processing", // other options: SHIPPED | DELIVERED | CANCELLED | PENDING
-//   isDeleted: false,
-
-//   items: [
-//     {
-//       productId: "P10021",
-//       name: "Zinger Burger",
-//       quantity: 2,
-//       price: 260, // single item price
-//       thumbnail: "https://picsum.photos/100/100?random=1",
-//     },
-//     {
-//       productId: "P10090",
-//       name: "BBQ Chicken Pizza",
-//       quantity: 1,
-//       price: 780,
-//       thumbnail: "https://picsum.photos/100/100?random=2",
-//     },
-//     {
-//       productId: "P10034",
-//       name: "Cold Coffee",
-//       quantity: 3,
-//       price: 140,
-//       thumbnail: "https://picsum.photos/100/100?random=3",
-//     },
-//   ]
-// });
-    };
+      };
     fetchOrder();
   }, [id]);
 
-  const handleStatusUpdate = async (status: string) => {
+  const handleStatusUpdate = async (orderId: string, status: string) => {
     setUpdatingStatus(true);
 
     try {
-      // await ORDER_SERVICE.updateStatus(id!, status);
-      setOrder((prev) => prev ? { ...prev, orderStatus: status } : prev);
+      const response = await ORDER_SERVICES.updateStatus(orderId, status);
+      console.log(response)
+      if(response.success) {
+        setOrder((prev) => prev ? { ...prev, orderStatus: status } as OrderResponseDto : prev);
+      } else {
+        toast({title: "Unable to update status!", description: "Something went wrong"})
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -152,8 +96,26 @@ export default function OrderDetailsPage() {
           {/* Customer Details */}
           <div>
             <h2 className="font-semibold mb-3">Customer</h2>
-            <p>{order.customer?.name || "Unknown"}</p>
+            <p>{order.customer?.name || "N/A"}</p>
             <p className="text-sm text-muted-foreground">{order.customer?.email}</p>
+            <p className="text-sm text-muted-foreground">{order.customer?.phone}</p>
+          </div>
+
+          <Separator />
+
+          {/* Shipping Address */}
+          <div>
+            <h2 className="font-semibold mb-3">Shipping Address</h2>
+            {order.shippingAddress ? (
+              <div className="text-sm text-muted-foreground space-y-1">
+                <p>{order.shippingAddress.houseNo ? `${order.shippingAddress.houseNo}, ${order.shippingAddress.street}` : order.shippingAddress.street}</p>
+                <p>{order.shippingAddress.city}{order.shippingAddress.state ? `, ${order.shippingAddress.state}` : ''}</p>
+                <p>{order.shippingAddress.pincode}</p>
+                <p>{order.shippingAddress.country}</p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No shipping address provided</p>
+            )}
           </div>
 
           <Separator />
@@ -164,6 +126,7 @@ export default function OrderDetailsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Item</TableHead>
+                <TableHead>Variant</TableHead>
                 <TableHead>Qty</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead className="text-right">Total</TableHead>
@@ -171,12 +134,13 @@ export default function OrderDetailsPage() {
             </TableHeader>
             <TableBody>
               {order.items.map((item) => (
-                <TableRow key={item.productId}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                <TableRow key={item.product.id}>
+                  <TableCell className="font-medium">{item.product.name}</TableCell>
+                  <TableCell>{item.variant.size}</TableCell>
                   <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{formatCurrency(item.price)}</TableCell>
+                  <TableCell>{formatCurrency(item.product.discountPrice)}</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(item.quantity * item.price)}
+                    {formatCurrency(item.quantity * item.product.discountPrice)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -215,12 +179,13 @@ export default function OrderDetailsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-3 flex-wrap">
+          
             {ORDER_STATUS_OPTIONS.map((status) => (
               <Button
                 key={status}
                 variant={order.orderStatus === status ? "default" : "outline"}
-                disabled={updatingStatus}
-                onClick={() => handleStatusUpdate(status)}
+                disabled={order.orderStatus === 'pending' || status === 'pending' || updatingStatus}
+                onClick={() => handleStatusUpdate(order.id, status)}
               >
                 {status}
               </Button>

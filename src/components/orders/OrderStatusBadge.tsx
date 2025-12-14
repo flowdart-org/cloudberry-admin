@@ -1,9 +1,10 @@
 import { Badge } from '@/components/ui/badge';
+import type { MouseEventHandler } from 'react';
 import { OrderStatus } from '@/types/order';
 import { cn } from '@/utils/tailwind';
-
 interface OrderStatusBadgeProps {
   status: OrderStatus;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }
 
 const statusConfig = {
@@ -15,26 +16,35 @@ const statusConfig = {
     label: 'Processing',
     className: 'bg-info/10 text-info border-info/20',
   },
-  shipped: {
-    label: 'Shipped',
+  shipping: {
+    label: 'Shipping',
     className: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
   },
   delivered: {
     label: 'Delivered',
     className: 'bg-success/10 text-success border-success/20',
   },
-  cancelled: {
-    label: 'Cancelled',
+  canceled: {
+    label: 'Canceled',
     className: 'bg-destructive/10 text-destructive border-destructive/20',
+  },
+  'return-request': {
+    label: 'Return Request',
+    className: 'bg-red-300 text-destructive border-destructive/20 rounded-none text-center cursor-pointer',
+  },
+  returned: {
+    label: 'Returned',
+    className: 'bg-warning/10 text-warning border-warning/20',
   },
 };
 
-export const OrderStatusBadge = ({ status }: OrderStatusBadgeProps) => {
+export const OrderStatusBadge = ({ status, onClick }: OrderStatusBadgeProps) => {
   const config = statusConfig[status];
 
   return (
-    <Badge variant="outline" className={cn('border font-medium', config.className)}>
+    <Badge variant="outline" className={cn('border font-medium', config.className)} onClick={onClick}>
       {config.label}
     </Badge>
   );
 };
+

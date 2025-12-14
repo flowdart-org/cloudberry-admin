@@ -98,6 +98,7 @@ export async function request<T>(
     const {data: response} = await callback(...props);
     return response;
   } catch (err: any) {
+    console.log('haih', err)
     return {
       success: false,
       message: err?.response?.data?.message || err.message || "Unknown error",

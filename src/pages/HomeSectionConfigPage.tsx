@@ -11,10 +11,11 @@ import { Check, Upload } from "lucide-react";
 import { MEDIA_SERVICES } from "@/api/media/media.service";
 import { useHomeSectionStore } from "@/store/useHomeSectionStore";
 import { useToast } from "@/hooks/use-toast";
+import { useCategoryStore } from "@/store/useCategoryStore";
 
 export default function HomeSectionConfigPage() {
+  const {categories} = useCategoryStore()
   const {
-    categories,
     products,
     selectedCategories,
     selectedProducts,
@@ -31,7 +32,6 @@ export default function HomeSectionConfigPage() {
     toggleProduct,
     toggleCategory,
     loadMoreProducts,
-    loadMoreCategories,
     saveLandingPage,
   } = useHomeSectionStore();
 
@@ -223,14 +223,6 @@ export default function HomeSectionConfigPage() {
                 );
               })}
             </div>
-
-            {visibleCategories < categories.length && (
-              <div className="flex justify-center">
-                <Button variant="outline" size="sm" onClick={() => loadMoreCategories(8)}>
-                  Load more categories
-                </Button>
-              </div>
-            )}
           </CardContent>
         </Card>
       </section>

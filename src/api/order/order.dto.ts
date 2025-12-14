@@ -1,3 +1,6 @@
+import { OrderStatus } from "@/types/order";
+import { OrderItemResponseDto } from "../client";
+
 export interface OrderResponseDto {
     id: string;
     orderNumber: string;
@@ -7,27 +10,36 @@ export interface OrderResponseDto {
     deliveredAt: string | null;
     cancelledAt: string | null;
     subtotal: number;
+    shippingAddress: {
+            city: string,
+            state: string,
+            street: string,
+            country: string,
+            houseNo: string,
+            pincode: number
+        },
     shippingCharge: number;
     discount: number;
     total: number;
-    items: Array<OrderItemDto>;
+    items: Array<OrderItemResponseDto>;
     paymentMethod?: object | null;
-    paymentStatus: string;
-    orderStatus: string;
+    paymentStatus: PaymentStatus;
+    orderStatus: OrderStatus;
     isDeleted: boolean;
 }
 
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
-export interface OrderItemDto {
-    productId: string;
-    variantId: string;
-    name: string;
-    sku?: string;
-    price: number;
-    quantity: number;
-    subtotal: number;
-    metadata?: { [key: string]: any; } | null;
-}
+// export interface OrderItemDto {
+//     productId: string;
+//     variantId: string;
+//     name: string;
+//     sku?: string;
+//     price: number;
+//     quantity: number;
+//     subtotal: number;
+//     metadata?: { [key: string]: any; } | null;
+// }
 
 export interface OrderResponseDtoCustomer {
     id?: string;
@@ -35,3 +47,4 @@ export interface OrderResponseDtoCustomer {
     email?: string | null;
     phone?: string | null;
 }
+

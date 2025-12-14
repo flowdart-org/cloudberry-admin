@@ -1,15 +1,12 @@
 "use client";
 
 import { create } from "zustand";
-import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { PRODUCT_SERVICES } from "@/api/product/product.service";
 import { LANDING_PAGE_SERVICES } from "@/api/landingPage/landingPage.service";
-import { Category } from "@/types/category.types";
 import { Product } from "@/types/product.types";
 
 type HomeSectionState = {
   // data
-  categories: Category[];
   products: Product[];
   selectedCategories: string[];
   selectedProducts: string[];
@@ -31,7 +28,6 @@ type HomeSectionState = {
   toggleProduct: (id: string, limit?: number) => void;
   toggleCategory: (id: string, limit?: number) => void;
   loadMoreProducts: (step?: number) => void;
-  loadMoreCategories: (step?: number) => void;
   saveLandingPage: () => Promise<void>;
 };
 
@@ -54,18 +50,16 @@ export const useHomeSectionStore = create<HomeSectionState>((set, get) => ({
 
     set({ loading: true });
     try {
-      const [catRes, prodRes, landingRes] = await Promise.all([
-        CATEGORY_SERVICES.getCategories(),
+      const [ prodRes, landingRes] = await Promise.all([
         PRODUCT_SERVICES.getProducts(),
         LANDING_PAGE_SERVICES.getLandingPageDetails(),
       ]);
 
-      const categories: Category[] = catRes.data || [];
       const products: Product[] = prodRes.data || [];
       const landing = landingRes.data;
 
+      
       set({
-        categories,
         products,
         selectedCategories: landing?.topCategories?.map((c: any) => c.id) || [],
         selectedProducts: landing?.topProducts?.map((p: any) => p.id) || [],
@@ -73,7 +67,7 @@ export const useHomeSectionStore = create<HomeSectionState>((set, get) => ({
         subtitle: landing?.hero?.subtitle || "",
         bannerImage: landing?.hero?.image || null,
         visibleProducts: Math.min(8, products.length),
-        visibleCategories: Math.min(8, categories.length),
+        visibleCategories: Infinity,
         initialized: true,
       });
 
@@ -114,11 +108,7 @@ export const useHomeSectionStore = create<HomeSectionState>((set, get) => ({
     set({ visibleProducts: next });
   },
 
-  loadMoreCategories: (step = 8) => {
-    const { visibleCategories, categories } = get();
-    const next = Math.min(visibleCategories + step, categories.length);
-    set({ visibleCategories: next });
-  },
+  
 
   saveLandingPage: async () => {
     const { title, subtitle, selectedCategories, selectedProducts } = get();

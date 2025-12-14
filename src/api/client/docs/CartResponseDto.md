@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Unique identifier for the cart | [default to undefined]
 **count** | **number** | Total number of items in the cart | [default to undefined]
-**items** | [**Array&lt;CartResponseDtoItemsInner&gt;**](CartResponseDtoItemsInner.md) | List of items in the cart | [default to undefined]
+**items** | [**Array&lt;CartItemResponseDto&gt;**](CartItemResponseDto.md) | List of items in the cart | [default to undefined]
 
 ## Example
 

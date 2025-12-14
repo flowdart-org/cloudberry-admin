@@ -137,28 +137,14 @@ export interface CartItemResponseDto {
      * Quantity of the product in the cart item
      */
     'quantity': number;
-    'product': CartItemResponseDtoProduct;
-    'variant': CartItemResponseDtoVariant;
-}
-/**
- * Details of the product in the cart item
- */
-export interface CartItemResponseDtoProduct {
-    'id'?: string;
-    'name'?: string;
-    'description'?: string;
-    'price'?: number;
-    'thumbnail'?: string;
-    'category'?: CartResponseDtoItemsInnerProductCategory;
-    'images'?: Array<string>;
-}
-/**
- * Details of the product variant in the cart item
- */
-export interface CartItemResponseDtoVariant {
-    'id'?: string;
-    'size'?: string;
-    'stock'?: number;
+    /**
+     * Details of the product in the cart item
+     */
+    'product': ProductResponsePickDto;
+    /**
+     * Details of the product variant in the cart item
+     */
+    'variant': ProductVariantResponseDto;
 }
 export interface CartResponseDto {
     /**
@@ -172,36 +158,53 @@ export interface CartResponseDto {
     /**
      * List of items in the cart
      */
-    'items': Array<CartResponseDtoItemsInner>;
-}
-export interface CartResponseDtoItemsInner {
-    'id'?: string;
-    'productId'?: string;
-    'variantId'?: string;
-    'quantity'?: number;
-    'product'?: CartResponseDtoItemsInnerProduct;
-}
-export interface CartResponseDtoItemsInnerProduct {
-    'id'?: string;
-    'name'?: string;
-    'description'?: string;
-    'price'?: number;
-    'thumbnail'?: string;
-    'category'?: CartResponseDtoItemsInnerProductCategory;
-}
-export interface CartResponseDtoItemsInnerProductCategory {
-    'id'?: string;
-    'name'?: string;
+    'items': Array<CartItemResponseDto>;
 }
 export interface CategoryControllerFindAll200Response {
     'success': boolean;
     'message': string;
-    'data'?: Array<object>;
+    'data'?: Array<CategoryResponseDto>;
 }
 export interface CategoryControllerFindAllActive200Response {
     'success': boolean;
     'message': string;
-    'data'?: object;
+    'data'?: CategoryResponseDto;
+}
+export interface CategoryResponseDto {
+    /**
+     * Unique identifier for the category
+     */
+    'id': string;
+    /**
+     * Name of the category
+     */
+    'name': string;
+    /**
+     * Status of the category
+     */
+    'status': CategoryResponseDtoStatusEnum;
+    /**
+     * Thumbnail image URL for the category
+     */
+    'thumbnail': string;
+}
+
+export const CategoryResponseDtoStatusEnum = {
+    Active: 'active',
+    Inactive: 'inactive'
+} as const;
+
+export type CategoryResponseDtoStatusEnum = typeof CategoryResponseDtoStatusEnum[keyof typeof CategoryResponseDtoStatusEnum];
+
+export interface CategoryResponsePickDto {
+    /**
+     * Unique identifier for the category
+     */
+    'id': string;
+    /**
+     * Name of the category
+     */
+    'name': string;
 }
 export interface CheckoutCartLinkResponseDto {
     /**
@@ -314,6 +317,24 @@ export interface CreateTryOnDto {
      */
     'productId': string;
 }
+export interface CustomerResponseDto {
+    /**
+     * Unique identifier for the user
+     */
+    'id': string;
+    /**
+     * Full name of the user
+     */
+    'name'?: string;
+    /**
+     * Email address of the user
+     */
+    'email'?: string;
+    /**
+     * Phone number of the user
+     */
+    'phone'?: string;
+}
 export interface DashboardAnalyticsResponseDto {
     /**
      * Total revenue generated
@@ -390,13 +411,19 @@ export interface OrderControllerFindOne200Response {
     'message': string;
     'data'?: OrderResponseDto;
 }
-export interface OrderItemDto {
-    'product': VariantDto;
+export interface OrderItemResponseDto {
+    'product': ProductPickDto;
     /**
      * Variant of the product
      */
-    'variant': VariantDto;
+    'variant': ProductVariantPickDto;
+    /**
+     * number of units of the product variant ordered
+     */
     'quantity': number;
+    /**
+     * subtotal price for the product variant (quantity x unit price)
+     */
     'subtotal': number;
 }
 export interface OrderResponseDto {
@@ -408,26 +435,21 @@ export interface OrderResponseDto {
      * Order number
      */
     'orderNumber': string;
-    'customer': OrderResponseDtoCustomer;
-    'placedAt': string | null;
-    'updatedAt': string | null;
-    'deliveredAt': string | null;
-    'cancelledAt': string | null;
+    'customer': CustomerResponseDto;
+    'shippingAddress'?: object | null;
     'subtotal': number;
     'shippingCharge': number;
     'discount': number;
     'total': number;
-    'items': Array<OrderItemDto>;
+    'items': Array<OrderItemResponseDto>;
     'paymentMethod'?: object | null;
     'paymentStatus': string;
     'orderStatus': string;
     'isDeleted': boolean;
-}
-export interface OrderResponseDtoCustomer {
-    'id'?: string;
-    'name'?: string | null;
-    'email'?: string | null;
-    'phone'?: string | null;
+    'placedAt': string | null;
+    'updatedAt': string | null;
+    'deliveredAt': string | null;
+    'cancelledAt': string | null;
 }
 export interface ProductControllerCreate200Response {
     'success': boolean;
@@ -438,6 +460,40 @@ export interface ProductControllerFind200Response {
     'success': boolean;
     'message': string;
     'data'?: Array<ProductResponseDto>;
+}
+export interface ProductPickDto {
+    /**
+     * Unique identifier for the product
+     */
+    'id': string;
+    /**
+     * Name of the product
+     */
+    'name': string;
+    /**
+     * Description of the product
+     */
+    'description': string;
+    /**
+     * Actual price of the product
+     */
+    'price': number;
+    /**
+     * Discounted price of the product
+     */
+    'discountPrice'?: number;
+    /**
+     * Discount percentage of the product
+     */
+    'discountPercent'?: number;
+    /**
+     * Product thumbnail URL
+     */
+    'thumbnail'?: string;
+    /**
+     * Category details of the product (optional)
+     */
+    'category': CategoryResponsePickDto;
 }
 export interface ProductResponseDto {
     /**
@@ -477,13 +533,9 @@ export interface ProductResponseDto {
      */
     'variants': Array<string>;
     /**
-     * Identifier for the category the product belongs to
-     */
-    'categoryId': string;
-    /**
      * Category details of the product (optional)
      */
-    'category'?: object;
+    'category': CategoryResponsePickDto;
     /**
      * Whether the product supports virtual try-on
      */
@@ -496,6 +548,64 @@ export interface ProductResponseDto {
      * Timestamp when the product was created
      */
     'createdAt': string;
+}
+export interface ProductResponsePickDto {
+    /**
+     * Unique identifier for the product
+     */
+    'id': string;
+    /**
+     * Name of the product
+     */
+    'name': string;
+    /**
+     * Actual price of the product
+     */
+    'price': number;
+    /**
+     * Discounted price of the product
+     */
+    'discountPrice'?: number;
+    /**
+     * Discount percentage of the product
+     */
+    'discountPercent'?: number;
+    /**
+     * Product thumbnail URL
+     */
+    'thumbnail'?: string;
+    /**
+     * Category details of the product (optional)
+     */
+    'category': CategoryResponsePickDto;
+}
+export interface ProductVariantPickDto {
+    /**
+     * Unique identifier for the product variant
+     */
+    'id': string;
+    /**
+     * Size of the product variant
+     */
+    'size': string;
+    /**
+     * Stock available for this variant
+     */
+    'stock': number;
+}
+export interface ProductVariantResponseDto {
+    /**
+     * Unique identifier for the product variant
+     */
+    'id': string;
+    /**
+     * Size of the product variant
+     */
+    'size': string;
+    /**
+     * Stock available for this variant
+     */
+    'stock': number;
 }
 export interface RecentOrderDto {
     /**
@@ -744,11 +854,11 @@ export interface UserResponseDto {
     /**
      * URL of the user try-on image
      */
-    'tryOnImage'?: object;
+    'tryOnImage': object | null;
     /**
      * URL of the user try-on image
      */
-    'tryOnLimit'?: number;
+    'tryOnLimit': number;
     /**
      * List of user addresses
      */
