@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 4000,
-    allowedHosts: ['admin.dev.cloudberrytryon.com'],
+    allowedHosts: ['admin.dev.cloudberrytryon.com']
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
