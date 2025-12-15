@@ -13,6 +13,7 @@ docs/AnalyticsApi.md
 docs/AnalyticsControllerGet200Response.md
 docs/AuthApi.md
 docs/AuthControllerRequestOtp200Response.md
+docs/CancelOrderRequestDto.md
 docs/CartApi.md
 docs/CartControllerAddToCart200Response.md
 docs/CartControllerCheckout200Response.md
@@ -55,9 +56,9 @@ docs/ProductControllerFind200Response.md
 docs/ProductPickDto.md
 docs/ProductResponseDto.md
 docs/ProductResponsePickDto.md
-docs/ProductVariantPickDto.md
 docs/ProductVariantResponseDto.md
 docs/RecentOrderDto.md
+docs/ReturnOrderRequestDto.md
 docs/SalesOverviewItemDto.md
 docs/TopSellingProductDto.md
 docs/TryOnApi.md

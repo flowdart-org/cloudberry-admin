@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** | Unique identifier for the product variant | [default to undefined]
 **size** | **string** | Size of the product variant | [default to undefined]
 **stock** | **number** | Stock available for this variant | [default to undefined]
+**isDeleted** | **boolean** | Indicates if the variant is deleted | [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: ProductVariantResponseDto = {
     id,
     size,
     stock,
+    isDeleted,
 };
 ```
 

@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **product** | [**ProductPickDto**](ProductPickDto.md) |  | [default to undefined]
-**variant** | [**ProductVariantPickDto**](ProductVariantPickDto.md) | Variant of the product | [default to undefined]
+**variant** | [**ProductVariantResponseDto**](ProductVariantResponseDto.md) | Variant of the product | [default to undefined]
 **quantity** | **number** | number of units of the product variant ordered | [default to undefined]
 **subtotal** | **number** | subtotal price for the product variant (quantity x unit price) | [default to undefined]
 

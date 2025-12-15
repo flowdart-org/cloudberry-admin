@@ -184,7 +184,7 @@ export default function OrderDetailsPage() {
               <Button
                 key={status}
                 variant={order.orderStatus === status ? "default" : "outline"}
-                disabled={order.orderStatus === 'pending' || status === 'pending' || updatingStatus}
+                disabled={ status === 'pending' || updatingStatus}
                 onClick={() => handleStatusUpdate(order.id, status)}
               >
                 {status}
