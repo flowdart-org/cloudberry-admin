@@ -28,9 +28,13 @@ const statusConfig = {
     label: 'Canceled',
     className: 'bg-destructive/10 text-destructive border-destructive/20',
   },
-  'return-request': {
-    label: 'Return Request',
+  'return_requested': {
+    label: 'Return Requested',
     className: 'bg-red-300 text-destructive border-destructive/20 rounded-none text-center cursor-pointer',
+  },
+  'return_approved' : {
+    label: 'Return Approved',
+    className: 'bg-purple-300 text-purple-800 text-center border-purple-800',
   },
   returned: {
     label: 'Returned',

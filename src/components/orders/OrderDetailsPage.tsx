@@ -23,6 +23,8 @@ const ORDER_STATUS_OPTIONS = [
   "shipping",
   "delivered",
   "cancelled",
+  "return_approved",
+  'returned'
 ];
 
 const PAYMENT_STATUS_OPTIONS = [
@@ -139,7 +141,7 @@ export default function OrderDetailsPage() {
               <p className="text-sm text-muted-foreground">Payment Status</p>
               <PaymentStatusBadge status={order.paymentStatus} />
             </div>
-            {(order.paymentStatus === 'pending' || order.paymentStatus === 'refunded') && <div className="space-y-1">
+            {(order.orderStatus === 'pending' || order.orderStatus === 'canceled' || order.orderStatus === 'returned') && (order.paymentStatus !== 'refunded') && <div className="space-y-1">
               <Button type="button" onClick={() => setShowRefundModal(true)}>Refund</Button>
             </div>}
           </div>

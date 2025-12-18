@@ -64,7 +64,8 @@ const OrdersList = () => {
             <SelectItem value="shipping">Shipping</SelectItem>
             <SelectItem value="delivered">Delivered</SelectItem>
             <SelectItem value="canceled">Canceled</SelectItem>
-            <SelectItem value="return-request">Return Requests</SelectItem>
+            <SelectItem value="return_requested">Return Requests</SelectItem>
+            <SelectItem value="return_approved">Return Approved</SelectItem>
             <SelectItem value="returned">Returned</SelectItem>
           </SelectContent>
         </Select>

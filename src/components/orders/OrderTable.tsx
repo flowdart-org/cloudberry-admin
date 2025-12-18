@@ -71,7 +71,7 @@ export const OrderTable = ({ orders }: OrderTableProps) => {
               <TableCell>{formatDate(order?.placedAt)}</TableCell>
               <TableCell>{formatCurrency(order?.total)}</TableCell>
               <TableCell>
-                <OrderStatusBadge status={order?.orderStatus} onClick={order.orderStatus === 'return-request' ? () => handleReturnClick(order.id) : undefined} />
+                <OrderStatusBadge status={order?.orderStatus} onClick={order.orderStatus === 'return_requested' ? () => handleReturnClick(order.id) : undefined} />
               </TableCell>
               <TableCell>
                 <PaymentStatusBadge status={order?.paymentStatus} />
