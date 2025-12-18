@@ -8,6 +8,7 @@ All URIs are relative to *http://api.dev.cloudberrytryon.com*
 |[**orderControllerFindAll**](#ordercontrollerfindall) | **GET** /api/order/admin | |
 |[**orderControllerFindAllByUser**](#ordercontrollerfindallbyuser) | **GET** /api/order | |
 |[**orderControllerFindOne**](#ordercontrollerfindone) | **GET** /api/order/{id} | |
+|[**orderControllerRefundPayment**](#ordercontrollerrefundpayment) | **PATCH** /api/order/{id}/refund | |
 |[**orderControllerRequestReturn**](#ordercontrollerrequestreturn) | **PATCH** /api/order/{id}/return | |
 |[**orderControllerUpdate**](#ordercontrollerupdate) | **PATCH** /api/order/{id}/status | |
 
@@ -219,6 +220,56 @@ const apiInstance = new OrderApi(configuration);
 let id: string; // (default to undefined)
 
 const { status, data } = await apiInstance.orderControllerFindOne(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**OrderControllerFindOne200Response**
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** |  |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **orderControllerRefundPayment**
+> OrderControllerFindOne200Response orderControllerRefundPayment()
+
+
+### Example
+
+```typescript
+import {
+    OrderApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new OrderApi(configuration);
+
+let id: string; // (default to undefined)
+
+const { status, data } = await apiInstance.orderControllerRefundPayment(
     id
 );
 ```

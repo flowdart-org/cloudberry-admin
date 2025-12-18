@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowLeft } from "lucide-react";
@@ -14,6 +15,7 @@ import { OrderStatusBadge } from "./OrderStatusBadge";
 import { PaymentStatusBadge } from "./PaymentStatusBadge";
 import { ORDER_SERVICES } from "@/api/order/order.service";
 import { toast } from "@/hooks/use-toast";
+import { PAYMENT_SERVICES } from "@/api/payment/payment.service";
 
 const ORDER_STATUS_OPTIONS = [
   "pending",
@@ -23,12 +25,22 @@ const ORDER_STATUS_OPTIONS = [
   "cancelled",
 ];
 
+const PAYMENT_STATUS_OPTIONS = [
+  "pending",
+  "paid",
+  "failed",
+  "refunded",
+];
+
 export default function OrderDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [order, setOrder] = useState<OrderResponseDto | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [updatingPayment, setUpdatingPayment] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState(false);
+  const [refundLoading, setRefundLoading] = useState(false);
 
   // ---- Fetch Order Data ----
   useEffect(() => {
@@ -60,6 +72,44 @@ export default function OrderDetailsPage() {
 
   if (!order) return <p className="text-center py-10 text-muted-foreground">Loading order...</p>;
 
+  const changePaymentStatus = async (paymentIdOrOrderId: string, status: string) => {
+    setUpdatingPayment(true);
+    try {
+      const res = await PAYMENT_SERVICES.updateStatus(paymentIdOrOrderId, status);
+      if (res && res.success) {
+        setOrder((prev) => (prev ? { ...prev, paymentStatus: status } as OrderResponseDto : prev));
+        toast({ title: "Payment status updated" });
+      } else {
+        toast({ title: "Failed to update payment status" });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Failed to update payment status" });
+    } finally {
+      setUpdatingPayment(false);
+    }
+  };
+
+  const refundOrder = async () => {
+    setRefundLoading(true);
+    try {
+      const res = await ORDER_SERVICES.refundPayment(id!);
+      if (res && (res as any).success) {
+        toast({ title: "Refund processed" });
+        // Update local payment status if backend returns success
+        setOrder((prev) => (prev ? { ...prev, paymentStatus: 'refunded' } as OrderResponseDto : prev));
+        setShowRefundModal(false);
+      } else {
+        toast({ title: "Refund failed" });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Refund failed" });
+    } finally {
+      setRefundLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -76,7 +126,7 @@ export default function OrderDetailsPage() {
           <CardTitle>Order Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Placed On</p>
               <p>{formatDate(order.placedAt)}</p>
@@ -89,6 +139,9 @@ export default function OrderDetailsPage() {
               <p className="text-sm text-muted-foreground">Payment Status</p>
               <PaymentStatusBadge status={order.paymentStatus} />
             </div>
+            {(order.paymentStatus === 'pending' || order.paymentStatus === 'refunded') && <div className="space-y-1">
+              <Button type="button" onClick={() => setShowRefundModal(true)}>Refund</Button>
+            </div>}
           </div>
 
           <Separator />
@@ -193,6 +246,21 @@ export default function OrderDetailsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payment Update Section */}
+      {/* Refund Confirmation Modal */}
+      <Dialog open={showRefundModal} onOpenChange={setShowRefundModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Refund</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Are you sure you want to refund this order? This action cannot be undone.</div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setShowRefundModal(false)} disabled={refundLoading}>Cancel</Button>
+            <Button type="button" onClick={refundOrder} disabled={refundLoading}>{refundLoading ? 'Processing...' : 'Confirm Refund'}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

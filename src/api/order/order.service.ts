@@ -22,4 +22,8 @@ export const ORDER_SERVICES = {
   updateStatus: async (id: string, status: string): Promise<ApiResponse<OrderResponseDto[]>> => {
     return await request(orderApi.orderControllerUpdate.bind(orderApi), id, {status} ) as ApiResponse<OrderResponseDto[]>;
   },
+
+  refundPayment: async (id: string): Promise<ApiResponse<OrderResponseDto[]>> => {
+    return await request(orderApi.orderControllerRefundPayment.bind(orderApi), id ) as ApiResponse<OrderResponseDto[]>;
+  },
 };

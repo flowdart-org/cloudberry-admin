@@ -10,6 +10,7 @@ import {
   LandingPageApi,
   MediaApi,
   OrderApi,
+  PaymentApi,
   ProductApi,
   UserApi,
 } from "@/api/client";
@@ -119,4 +120,5 @@ export const mediaApi = new MediaApi(config, ENV.API_BASE_URL, api);
 export const orderApi = new OrderApi(config, ENV.API_BASE_URL, api);
 export const landingPageApi = new LandingPageApi(config, ENV.API_BASE_URL, api);
 export const analyticsApi = new AnalyticsApi(config, ENV.API_BASE_URL, api);
+export const paymentApi = new PaymentApi(config, ENV.API_BASE_URL, api);
 

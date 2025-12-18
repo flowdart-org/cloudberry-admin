@@ -9,7 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:api": "openapi-generator-cli generate -i http://api.dev.cloudberrytryon.com/api/docs-json -g typescript-axios -o src/api/client --skip-validate-spec"
+    "generate:api": "openapi-generator-cli generate -i http://api.cloudberrytryon.com/api/docs-json -g typescript-axios -o src/api/client --skip-validate-spec"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
