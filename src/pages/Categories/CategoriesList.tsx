@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Category } from "@/types/category.types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,37 +13,16 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter,
   DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Search, Pencil, Loader2 } from "lucide-react";
+import { Plus, Pencil, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { CATEGORY_SERVICES } from "@/api/category/category.service";
 import { Pagination } from "@/components/common/Pagination";
 import { useCategoryStore } from "@/store/useCategoryStore";
 
-/* --------------------------------
-   🔹 Debounce Hook (shared pattern)
--------------------------------- */
-function useDebouncedValue<T>(value: T, delay = 400): T {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-
-  return debounced;
-}
-
 const CategoriesList = () => {
   /* ---------- State ---------- */
   // categories are now provided by the central store
   const { categories, loading: storeLoading, fetchAll } = useCategoryStore();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"active" | "inactive" | "">("");
-
-  // Debounced Search
-  const debouncedSearch = useDebouncedValue(searchQuery, 400);
-
-
 
   // UI state
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -60,22 +39,10 @@ const CategoriesList = () => {
     status: "inactive" as "active" | "inactive",
   });
 
-  // Prevents outdated API response updating UI
-  const requestRef = useRef(0);
   // Load all categories from store on mount
   useEffect(() => {
     fetchAll().catch(() => toast.error("Failed to load categories"));
   }, [fetchAll]);
-
-  // Client-side filtered list based on search + status
-  const filteredCategories = useMemo(() => {
-    const q = debouncedSearch.trim().toLowerCase();
-    return categories.filter((c) => {
-      const matchesSearch = q === "" || c.name.toLowerCase().includes(q);
-      const matchesStatus = !statusFilter || !statusFilter ? true : c.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [categories, debouncedSearch, statusFilter]);
 
   /* --------------------------------
      🔹 Add Category (Step 1)
@@ -170,7 +137,7 @@ const CategoriesList = () => {
   };
 
   const tableLoading = storeLoading || isLoading;
-  const noResults = !tableLoading && filteredCategories.length === 0;
+  const noResults = !tableLoading && categories.length === 0;
 
   /* --------------------------------
              🔹 UI
@@ -183,33 +150,6 @@ const CategoriesList = () => {
         <Button size="lg" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" /> Add Category
         </Button>
-      </div>
-
-      {/* Search + Filters */}
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search categories..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-            }}
-            className="pl-10"
-          />
-        </div>
-
-        <select
-          className="border rounded px-3 py-2"
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value as any);
-          }}
-        >
-          <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
       </div>
 
       {/* Table */}

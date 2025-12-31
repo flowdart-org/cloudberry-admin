@@ -84,15 +84,30 @@ export default function Products() {
         page,
         pageSize,
         debouncedSearchQuery,
-        statusFilter !== "all" ? (statusFilter as "active" | "inactive") : undefined,
-        categoryFilter !== "all" ? categoryFilter : undefined
+        statusFilter !== "all" ? (statusFilter as "active" | "inactive") : undefined
       );
 
 
       if (fetchId !== fetchIdRef.current) return;
 
-      setProducts(response.data || []);
-      setTotalItems(response.total || 0);
+      let filteredProducts = response.data || [];
+      
+      // Client-side category filter since API doesn't support it yet
+      if (categoryFilter !== "all") {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.category?.id === categoryFilter
+        );
+      }
+
+      // Client-side status filter as well (in case API didn't filter)
+      if (statusFilter !== "all") {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.status === statusFilter
+        );
+      }
+
+      setProducts(filteredProducts);
+      setTotalItems(categoryFilter !== "all" || statusFilter !== "all" ? filteredProducts.length : response.total || 0);
     } catch (error) {
       toast.error("Failed to load products");
     } finally {

@@ -16,9 +16,8 @@ export const PRODUCT_SERVICES = {
     return response.data;
   },
 
-  getProducts: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive', category?: string): Promise<PaginatedResponse<Product[]>> => {
-    console.log(category)
-    return await request(productApi.productControllerFind.bind(productApi), page, limit, search, status, category) as PaginatedResponse<Product[]>;
+  getProducts: async (page?: number, limit?: number, search?: string, status?: 'active' | 'inactive'): Promise<PaginatedResponse<Product[]>> => {
+    return await request(productApi.productControllerFind.bind(productApi), page, limit, search, status) as PaginatedResponse<Product[]>;
   },
 
 
