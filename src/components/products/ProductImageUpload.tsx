@@ -72,9 +72,16 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Use full resolution for better quality
+    canvas.width = pixelCrop.width * scaleX;
+    canvas.height = pixelCrop.height * scaleY;
+    
     const ctx = canvas.getContext("2d")!;
+    
+    // Enable high-quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    
     ctx.drawImage(
       image,
       pixelCrop.x * scaleX,
@@ -83,12 +90,13 @@ export const ProductImageUpload = ({ productId, onComplete, existingImages = [] 
       pixelCrop.height * scaleY,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height
+      pixelCrop.width * scaleX,
+      pixelCrop.height * scaleY
     );
 
     return await new Promise((resolve) => {
-      canvas.toBlob((b) => resolve(b!), "image/jpeg", 0.95);
+      // Use PNG for lossless compression
+      canvas.toBlob((b) => resolve(b!), "image/png");
     });
   };
 

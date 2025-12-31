@@ -36,13 +36,20 @@ const getCroppedImg = (image: HTMLImageElement, crop: PixelCrop): Promise<Blob |
     const canvas = document.createElement("canvas");
     const scaleX = image.naturalWidth / image.width;
     const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
+    
+    // Use full resolution for better quality
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    
     const ctx = canvas.getContext("2d");
     if (!ctx) {
       resolve(null);
       return;
     }
+
+    // Enable high-quality rendering
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     ctx.drawImage(
       image,
@@ -52,11 +59,12 @@ const getCroppedImg = (image: HTMLImageElement, crop: PixelCrop): Promise<Blob |
       crop.height * scaleY,
       0,
       0,
-      crop.width,
-      crop.height
+      crop.width * scaleX,
+      crop.height * scaleY
     );
 
-    canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.95);
+    // Use PNG for lossless compression
+    canvas.toBlob((blob) => resolve(blob), "image/png");
   });
 };
 
